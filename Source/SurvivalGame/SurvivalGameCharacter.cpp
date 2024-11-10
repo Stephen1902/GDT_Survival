@@ -10,6 +10,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "PlayerWidget.h"
+#include "StatComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -53,12 +55,54 @@ ASurvivalGameCharacter::ASurvivalGameCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("Stat Component"));
+
+	bIsMoving = false;
+	bIsSprinting = false;
+	bOutOfStamina = false;
+	DefaultWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	SprintingSpeed = 600.f;
+	
+}
+
+void ASurvivalGameCharacter::PlayerHasDied()
+{
+	CameraBoom->TargetArmLength = 400.f;
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
+	GetMesh()->SetSimulatePhysics(true);
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		DisableInput(PlayerController);
+	}
 }
 
 void ASurvivalGameCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	if (WidgetToDisplay)
+	{
+		if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+		{
+			PlayerWidgetRef = CreateWidget<UPlayerWidget>(PlayerController, WidgetToDisplay);
+			if (PlayerWidgetRef)
+			{
+				PlayerWidgetRef->AddToViewport();
+				if (StatComponent)
+				{
+					StatComponent->SetPlayerWidgetRef(PlayerWidgetRef);
+				}
+			}
+		}
+	}
+
+	DefaultWalkSpeed =  GetCharacterMovement()->GetMaxSpeed();
+	if (DefaultWalkSpeed > SprintingSpeed)
+	{
+		SprintingSpeed = DefaultWalkSpeed * 1.5f;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -84,9 +128,14 @@ void ASurvivalGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASurvivalGameCharacter::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ASurvivalGameCharacter::EndMove);
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASurvivalGameCharacter::Look);
+
+		// Sprinting
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ASurvivalGameCharacter::StartSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASurvivalGameCharacter::EndSprint);
 	}
 	else
 	{
@@ -96,25 +145,35 @@ void ASurvivalGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 void ASurvivalGameCharacter::Move(const FInputActionValue& Value)
 {
-	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
+	if (Value.IsNonZero())
 	{
-		// find out which way is forward
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		bIsMoving = true;
 
-		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		// input is a Vector2D
+		FVector2D MovementVector = Value.Get<FVector2D>();
+
+		if (Controller != nullptr)
+		{
+			// find out which way is forward
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+			// get forward vector
+			const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	
-		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+			// get right vector 
+			const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// add movement 
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
+			// add movement 
+			AddMovementInput(ForwardDirection, MovementVector.Y);
+			AddMovementInput(RightDirection, MovementVector.X);
+		}
 	}
+}
+
+void ASurvivalGameCharacter::EndMove(const FInputActionValue& Value)
+{
+	bIsMoving = false;
 }
 
 void ASurvivalGameCharacter::Look(const FInputActionValue& Value)
@@ -128,4 +187,37 @@ void ASurvivalGameCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void ASurvivalGameCharacter::StartSprint(const FInputActionValue& Value)
+{
+	if (bIsMoving)
+	{
+		if (!bIsSprinting && !bOutOfStamina)
+		{
+			bIsSprinting = true;
+			StatComponent->SetIsRegainingStamina(false);
+			GetCharacterMovement()->MaxWalkSpeed = SprintingSpeed;
+		}
+	}
+	// If the player is not moving but is holding down the Sprint action, they're not using stamina
+	else if (bIsSprinting)
+	{
+		StatComponent->SetIsRegainingStamina(true);
+		bIsSprinting = false;
+	}
+}
+
+void ASurvivalGameCharacter::EndSprint(const FInputActionValue& Value)
+{
+	StaminaHasRunOut();
+	bOutOfStamina = false;
+}
+
+void ASurvivalGameCharacter::StaminaHasRunOut()
+{
+	bOutOfStamina = true;
+	StatComponent->SetIsRegainingStamina(true);
+	bIsSprinting = false;
+	GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
 }

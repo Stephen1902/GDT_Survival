@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "SurvivalGameCharacter.generated.h"
@@ -44,20 +45,33 @@ class ASurvivalGameCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	/** Sprinting Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SprintAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widgets", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UPlayerWidget> WidgetToDisplay;
+	
+	/** Stat Component */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UStatComponent* StatComponent;
 public:
 	ASurvivalGameCharacter();
 	
-
+	void PlayerHasDied();
 protected:
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
+	void EndMove(const FInputActionValue& Value);
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
 
-protected:
+	/** Called or sprint actions */
+	void StartSprint(const FInputActionValue& Value);
+	void EndSprint(const FInputActionValue& Value);
+	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
@@ -69,5 +83,16 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	void StaminaHasRunOut();
+private:
+	UPROPERTY()
+	UPlayerWidget* PlayerWidgetRef;
+
+	bool bIsMoving;
+	bool bIsSprinting;
+	bool bOutOfStamina;
+	float DefaultWalkSpeed;
+	float SprintingSpeed;
 };
 

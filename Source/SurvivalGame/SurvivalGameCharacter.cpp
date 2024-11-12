@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "InventoryComponent.h"
 #include "PlayerWidget.h"
 #include "StatComponent.h"
 
@@ -57,6 +58,7 @@ ASurvivalGameCharacter::ASurvivalGameCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("Stat Component"));
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory Component"));
 
 	bIsMoving = false;
 	bIsSprinting = false;

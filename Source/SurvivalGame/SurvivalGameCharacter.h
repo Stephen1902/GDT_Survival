@@ -55,6 +55,9 @@ class ASurvivalGameCharacter : public ACharacter
 	/** Stat Component */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UStatComponent* StatComponent;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UInventoryComponent* InventoryComponent;
 public:
 	ASurvivalGameCharacter();
 	

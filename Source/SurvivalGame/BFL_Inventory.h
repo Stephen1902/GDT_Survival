@@ -13,7 +13,7 @@ struct FInventoryStruct : public FTableRowBase
 	GENERATED_BODY()
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
-	FText ItemName;
+	FString ItemName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
 	int32 Amount;
@@ -29,7 +29,7 @@ struct FInventoryStruct : public FTableRowBase
 
 	FInventoryStruct()
 	{
-		ItemName = FText::FromString("");
+		ItemName = "";
 		Amount = 0;
 		DisplayMesh = nullptr;
 		Icon = nullptr;

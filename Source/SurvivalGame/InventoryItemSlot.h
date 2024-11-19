@@ -35,5 +35,8 @@ private:
 	FTimerHandle UpdateDelayHandle;
 
 	virtual void NativeConstruct() override;
-	void UpdateAfterDelay();
+	void UpdateSlot();
+
+public:
+	void SetNewSlotInfo(FInventoryStruct* ItemInfo);
 };

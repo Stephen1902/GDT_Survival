@@ -48,6 +48,9 @@ class ASurvivalGameCharacter : public ACharacter
 	/** Sprinting Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SprintAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InventoryAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widgets", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UPlayerWidget> WidgetToDisplay;
@@ -74,6 +77,9 @@ protected:
 	/** Called or sprint actions */
 	void StartSprint(const FInputActionValue& Value);
 	void EndSprint(const FInputActionValue& Value);
+
+	/** Inventory action */
+	void ToggleInventory(const FInputActionValue& Value);
 	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -92,6 +98,9 @@ private:
 	UPROPERTY()
 	UPlayerWidget* PlayerWidgetRef;
 
+	UPROPERTY()
+	APlayerController* PlayerController;
+	
 	bool bIsMoving;
 	bool bIsSprinting;
 	bool bOutOfStamina;

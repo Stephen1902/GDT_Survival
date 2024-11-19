@@ -3,6 +3,8 @@
 
 #include "InventoryComponent.h"
 
+#include "InventoryWidget.h"
+
 // Sets default values for this component's properties
 UInventoryComponent::UInventoryComponent()
 {
@@ -10,7 +12,8 @@ UInventoryComponent::UInventoryComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	ItemDataTable = nullptr;
+	InventoryWidgetRef = nullptr;
 }
 
 
@@ -26,17 +29,16 @@ void UInventoryComponent::BeginPlay()
 	NewStruct.DisplayMesh = nullptr;
 	NewStruct.Icon = nullptr;
 	NewStruct.bCanCraft = false;
-
 	AddItem(NewStruct);
-
-	NewStruct.Amount = 2;
-	AddItem(NewStruct);
-
+	
 	NewStruct.ItemName = "Stone";
 	NewStruct.Amount = 3;
 	AddItem(NewStruct);
 
-	RemoveItem("Wood", 3);
+	NewStruct.ItemName = "Leaves";
+	NewStruct.Amount = 5;
+	AddItem(NewStruct);
+
 }
 
 
@@ -114,5 +116,27 @@ bool UInventoryComponent::RemoveItem(FString ItemToRemove, int32 AmountToRemove)
 	}
 	
 	return bItemRemoved;
+}
+
+void UInventoryComponent::DealWithInventoryButtonPress(APlayerController* PlayerControllerIn)
+{
+	if (InventoryWidget && PlayerControllerIn)
+	{
+		if (InventoryWidgetRef == nullptr)
+		{
+			InventoryWidgetRef = CreateWidget<UInventoryWidget>(PlayerControllerIn, InventoryWidget);
+			InventoryWidgetRef->SetInventory(InventoryInfo);
+			InventoryWidgetRef->AddToViewport();
+		}
+		else
+		{
+			InventoryWidgetRef->RemoveFromParent();
+			InventoryWidgetRef = nullptr;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Tried to open the player widget but the widget or player controller is not valid"));
+	}
 }
 

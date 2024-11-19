@@ -14,6 +14,7 @@ class SURVIVALGAME_API UInventoryItemGrid : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
 	class UBorder* InventoryBorder;
 

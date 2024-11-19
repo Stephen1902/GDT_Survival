@@ -73,7 +73,7 @@ void ASurvivalGameCharacter::PlayerHasDied()
 	CameraBoom->TargetArmLength = 400.f;
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
 	GetMesh()->SetSimulatePhysics(true);
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	if (PlayerController)
 	{
 		DisableInput(PlayerController);
 	}
@@ -86,7 +86,8 @@ void ASurvivalGameCharacter::BeginPlay()
 
 	if (WidgetToDisplay)
 	{
-		if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+		PlayerController = Cast<APlayerController>(GetController());
+		if (PlayerController)
 		{
 			PlayerWidgetRef = CreateWidget<UPlayerWidget>(PlayerController, WidgetToDisplay);
 			if (PlayerWidgetRef)
@@ -113,12 +114,16 @@ void ASurvivalGameCharacter::BeginPlay()
 void ASurvivalGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to get a PlayerController in SetupPlayerInputComponent"));
 	}
 	
 	// Set up action bindings
@@ -138,6 +143,9 @@ void ASurvivalGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		// Sprinting
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ASurvivalGameCharacter::StartSprint);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASurvivalGameCharacter::EndSprint);
+
+		// Inventory
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ASurvivalGameCharacter::ToggleInventory);
 	}
 	else
 	{
@@ -214,6 +222,14 @@ void ASurvivalGameCharacter::EndSprint(const FInputActionValue& Value)
 {
 	StaminaHasRunOut();
 	bOutOfStamina = false;
+}
+
+void ASurvivalGameCharacter::ToggleInventory(const FInputActionValue& Value)
+{
+	if (InventoryComponent)
+	{
+		InventoryComponent->DealWithInventoryButtonPress(PlayerController);
+	}
 }
 
 void ASurvivalGameCharacter::StaminaHasRunOut()

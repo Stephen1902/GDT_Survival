@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "BFL_Inventory.h"
 #include "InventoryWidget.generated.h"
 
 /**
@@ -14,9 +15,22 @@ class SURVIVALGAME_API UInventoryWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
 	class UCanvasPanel* CanvasPanel;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
 	class UInventoryItemGrid* InventoryItemGrid;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Widget")
+	TSubclassOf<class UInventoryItemSlot> WidgetItemSlot;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Widget")
+	int32 GridSlotsPerRow = 5;
+private:
+	TArray<FInventoryStruct> InventoryToDisplay;
+
+	virtual void NativeConstruct() override;
+public:
+	void SetInventory(const TArray<FInventoryStruct>& InventoryIn);
 };

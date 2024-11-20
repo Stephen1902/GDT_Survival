@@ -37,6 +37,8 @@ private:
 	virtual void NativeConstruct() override;
 	void UpdateSlot();
 
+	UFUNCTION()
+	void ButtonPressed();
 public:
 	void SetNewSlotInfo(FInventoryStruct* ItemInfo);
 };

@@ -26,13 +26,14 @@ void UInventoryComponent::BeginPlay()
 	FInventoryStruct NewStruct;
 	NewStruct.ItemName = "Wood";
 	NewStruct.Amount = 1;
-	NewStruct.DisplayMesh = nullptr;
+	NewStruct.DisplayMesh = TempMesh;
 	NewStruct.Icon = nullptr;
 	NewStruct.bCanCraft = false;
 	AddItem(NewStruct);
 	
 	NewStruct.ItemName = "Stone";
 	NewStruct.Amount = 3;
+	NewStruct.DisplayMesh = nullptr;
 	AddItem(NewStruct);
 
 	NewStruct.ItemName = "Leaves";
@@ -127,16 +128,25 @@ void UInventoryComponent::DealWithInventoryButtonPress(APlayerController* Player
 			InventoryWidgetRef = CreateWidget<UInventoryWidget>(PlayerControllerIn, InventoryWidget);
 			InventoryWidgetRef->SetInventory(InventoryInfo);
 			InventoryWidgetRef->AddToViewport();
+			PlayerControllerIn->SetShowMouseCursor(true);
+			PlayerControllerIn->SetInputMode(FInputModeGameAndUI());
 		}
 		else
 		{
 			InventoryWidgetRef->RemoveFromParent();
 			InventoryWidgetRef = nullptr;
+			PlayerControllerIn->SetShowMouseCursor(false);
+			PlayerControllerIn->SetInputMode(FInputModeGameOnly());
 		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Tried to open the player widget but the widget or player controller is not valid"));
 	}
+}
+
+void UInventoryComponent::SetEquippedItem(FInventoryStruct* SlotItem)
+{
+	CurrentSetItem = SlotItem;
 }
 

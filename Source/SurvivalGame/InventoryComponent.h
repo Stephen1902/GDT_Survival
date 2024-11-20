@@ -28,6 +28,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Inventory")
 	TSubclassOf<class UInventoryWidget> InventoryWidget;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Inventory")
+	UStaticMesh* TempMesh;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -36,8 +39,10 @@ public:
 	bool RemoveItem(FString ItemToRemove, int32 AmountToRemove);
 
 	void DealWithInventoryButtonPress(APlayerController* PlayerControllerIn);
-
+	void SetEquippedItem(FInventoryStruct* SlotItem);
 private:
 	UPROPERTY()
 	UInventoryWidget* InventoryWidgetRef;
+
+	FInventoryStruct* CurrentSetItem;
 };

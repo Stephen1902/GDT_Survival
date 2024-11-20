@@ -13,6 +13,7 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+struct FInventoryStruct;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -28,6 +29,9 @@ class ASurvivalGameCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* EquippedItemMesh;
 	
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -94,6 +98,9 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	void StaminaHasRunOut();
+
+	void SetEquippedItemMesh(FInventoryStruct* InventoryStructIn);
+	UInventoryComponent* GetInventoryComp() const { return InventoryComponent; }
 private:
 	UPROPERTY()
 	UPlayerWidget* PlayerWidgetRef;

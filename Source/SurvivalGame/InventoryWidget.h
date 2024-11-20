@@ -31,6 +31,9 @@ private:
 	TArray<FInventoryStruct> InventoryToDisplay;
 
 	virtual void NativeConstruct() override;
+
+	int32 RowAsInt = 0;
+	int32 ColumnAsInt = 0;
 public:
 	void SetInventory(const TArray<FInventoryStruct>& InventoryIn);
 };

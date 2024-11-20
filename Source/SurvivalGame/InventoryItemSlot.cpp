@@ -2,9 +2,11 @@
 
 
 #include "InventoryItemSlot.h"
-
+#include "SurvivalGameCharacter.h"
+#include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
 void UInventoryItemSlot::NativeConstruct()
 {
@@ -14,6 +16,8 @@ void UInventoryItemSlot::NativeConstruct()
 	{
 		GetWorld()->GetTimerManager().SetTimer(UpdateDelayHandle, this, &UInventoryItemSlot::UpdateSlot, GetWorld()->GetDeltaSeconds(), false, GetWorld()->GetDeltaSeconds());
 	}
+
+	ItemButton->OnClicked.AddDynamic(this, &UInventoryItemSlot::ButtonPressed);
 }
 
 void UInventoryItemSlot::UpdateSlot()
@@ -24,6 +28,17 @@ void UInventoryItemSlot::UpdateSlot()
 	{
 		ItemImage->SetBrushFromSoftTexture(ItemToUse->Icon);
 		ItemText->SetText(FText::FromString(FString::FromInt(ItemToUse->Amount)));
+	}
+}
+
+void UInventoryItemSlot::ButtonPressed()
+{
+	if (ItemToUse)
+	{
+		if (ASurvivalGameCharacter* PlayerChar = Cast<ASurvivalGameCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)))
+		{
+			PlayerChar->SetEquippedItemMesh(ItemToUse);
+		}
 	}
 }
 

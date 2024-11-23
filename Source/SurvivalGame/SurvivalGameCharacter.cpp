@@ -247,7 +247,15 @@ void ASurvivalGameCharacter::StaminaHasRunOut()
 void ASurvivalGameCharacter::SetEquippedItemMesh(FInventoryStruct* InventoryStructIn)
 {
 	EquippedItemMesh->SetStaticMesh(InventoryStructIn->DisplayMesh);
-	InventoryComponent->SetEquippedItem(InventoryStructIn);
+	if (InventoryComponent)
+	{
+		InventoryComponent->SetEquippedItem(InventoryStructIn);
+	}
+
+	if (PlayerWidgetRef)
+	{
+		PlayerWidgetRef->UpdateEquippedItem(InventoryStructIn);
+	}
 	// Automatically close the inventory
 	ToggleInventory(0);
 }

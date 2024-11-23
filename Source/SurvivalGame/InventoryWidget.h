@@ -7,6 +7,7 @@
 #include "BFL_Inventory.h"
 #include "InventoryWidget.generated.h"
 
+class UInventoryComponent;
 /**
  * 
  */
@@ -29,11 +30,16 @@ protected:
 	int32 GridSlotsPerRow = 5;
 private:
 	TArray<FInventoryStruct> InventoryToDisplay;
+	
+	UPROPERTY()
+	UInventoryComponent* InventoryComponentRef;
+
+	FInventoryStruct* CurrentSetItem;
 
 	virtual void NativeConstruct() override;
 
 	int32 RowAsInt = 0;
 	int32 ColumnAsInt = 0;
 public:
-	void SetInventory(const TArray<FInventoryStruct>& InventoryIn);
+	void SetInventoryRef(UInventoryComponent* InventoryIn);
 };

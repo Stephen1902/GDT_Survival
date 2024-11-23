@@ -40,9 +40,12 @@ public:
 
 	void DealWithInventoryButtonPress(APlayerController* PlayerControllerIn);
 	void SetEquippedItem(FInventoryStruct* SlotItem);
+
+	TArray<FInventoryStruct> GetInventory() const { return InventoryInfo; }
+	FInventoryStruct* GetCurrentEquippedItem() const { return  CurrentEquippedItem; }
 private:
 	UPROPERTY()
 	UInventoryWidget* InventoryWidgetRef;
 
-	FInventoryStruct* CurrentSetItem;
+	FInventoryStruct* CurrentEquippedItem;
 };

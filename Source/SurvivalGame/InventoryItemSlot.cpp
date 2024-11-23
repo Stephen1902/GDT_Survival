@@ -1,12 +1,12 @@
 // Copyright 2024 DME Games
 
-
 #include "InventoryItemSlot.h"
 #include "SurvivalGameCharacter.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
+#include "Styling/SlateColor.h"
 
 void UInventoryItemSlot::NativeConstruct()
 {
@@ -39,6 +39,8 @@ void UInventoryItemSlot::ButtonPressed()
 		{
 			PlayerChar->SetEquippedItemMesh(ItemToUse);
 		}
+
+		SetButtonStyle();
 	}
 }
 
@@ -53,4 +55,14 @@ void UInventoryItemSlot::SetNewSlotInfo(FInventoryStruct* ItemInfo)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Tried to call SetNewSlotInfo but ItemInfo was not valid."));
 	}
+}
+
+void UInventoryItemSlot::SetButtonStyle()
+{
+	FButtonStyle ButtonStyle = ItemButton->GetStyle();
+	FSlateBrush ButtonBrush = ButtonStyle.Normal;
+	ButtonBrush.TintColor = FSlateColor(FLinearColor(EquippedColour));
+	ButtonStyle.Normal = ButtonBrush;
+	ItemButton->SetStyle(ButtonStyle);
+	
 }

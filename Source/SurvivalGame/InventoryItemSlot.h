@@ -29,16 +29,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Widget", meta=(BindWidget))
 	class UTextBlock* ItemText;
 
+	// Color to change the button to when it is equipped
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Widget")
+	FLinearColor EquippedColour;
+	
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory Widget", meta=(ExposeOnSpawn))
 	FInventoryStruct* ItemToUse;
 private:
 	FTimerHandle UpdateDelayHandle;
 
 	virtual void NativeConstruct() override;
+	
 	void UpdateSlot();
 
 	UFUNCTION()
 	void ButtonPressed();
 public:
 	void SetNewSlotInfo(FInventoryStruct* ItemInfo);
+
+	void SetButtonStyle();
+
+	FString GetSlotName() const { return ItemToUse->ItemName; }
 };

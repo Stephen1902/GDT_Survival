@@ -126,7 +126,7 @@ void UInventoryComponent::DealWithInventoryButtonPress(APlayerController* Player
 		if (InventoryWidgetRef == nullptr)
 		{
 			InventoryWidgetRef = CreateWidget<UInventoryWidget>(PlayerControllerIn, InventoryWidget);
-			InventoryWidgetRef->SetInventory(InventoryInfo);
+			InventoryWidgetRef->SetInventoryRef(this);
 			InventoryWidgetRef->AddToViewport();
 			PlayerControllerIn->SetShowMouseCursor(true);
 			PlayerControllerIn->SetInputMode(FInputModeGameAndUI());
@@ -147,6 +147,6 @@ void UInventoryComponent::DealWithInventoryButtonPress(APlayerController* Player
 
 void UInventoryComponent::SetEquippedItem(FInventoryStruct* SlotItem)
 {
-	CurrentSetItem = SlotItem;
+	CurrentEquippedItem = SlotItem;
 }
 

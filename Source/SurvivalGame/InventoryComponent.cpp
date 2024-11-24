@@ -2,8 +2,8 @@
 
 
 #include "InventoryComponent.h"
-
 #include "InventoryWidget.h"
+#include "SurvivalGameCharacter.h"
 
 // Sets default values for this component's properties
 UInventoryComponent::UInventoryComponent()
@@ -14,31 +14,18 @@ UInventoryComponent::UInventoryComponent()
 
 	ItemDataTable = nullptr;
 	InventoryWidgetRef = nullptr;
+	TempMesh = nullptr;
+	CurrentEquippedItem = nullptr;
+	PlayerCharacterRef = nullptr;
 }
-
 
 // Called when the game starts
 void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	FInventoryStruct NewStruct;
-	NewStruct.ItemName = "Wood";
-	NewStruct.Amount = 1;
-	NewStruct.DisplayMesh = TempMesh;
-	NewStruct.Icon = nullptr;
-	NewStruct.bCanCraft = false;
-	AddItem(NewStruct);
-	
-	NewStruct.ItemName = "Stone";
-	NewStruct.Amount = 3;
-	NewStruct.DisplayMesh = nullptr;
-	AddItem(NewStruct);
 
-	NewStruct.ItemName = "Leaves";
-	NewStruct.Amount = 5;
-	AddItem(NewStruct);
+	GetWorld()->GetTimerManager().SetTimer(TempTimer, this, &UInventoryComponent::TempAddItems, 0.5f, false);
 
 }
 
@@ -54,26 +41,29 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 void UInventoryComponent::AddItem(FInventoryStruct ItemToAdd)
 {
 	
-	if (InventoryInfo.Num() > 0 && !ItemToAdd.ItemName.IsEmpty())
-	{
-		bool bMatchFound = false;
+	bool bMatchFound = false;
 
-		for (auto& InventoryLine : InventoryInfo)
+	for (auto& InventoryLine : InventoryInfo)
+	{
+		if (InventoryLine.ItemName == ItemToAdd.ItemName)
 		{
-			if (InventoryLine.ItemName == ItemToAdd.ItemName)
-			{
-				InventoryLine.Amount = InventoryLine.Amount + ItemToAdd.Amount;
-				bMatchFound = true;
-				break;
-			}
-		}
-		
-		if (!bMatchFound)
-		{
-			InventoryInfo.Add(ItemToAdd);
+			InventoryLine.Amount = InventoryLine.Amount + ItemToAdd.Amount;
+			bMatchFound = true;
+			break;
 		}
 	}
+
+	if (PlayerCharacterRef)
+	{
+		PlayerCharacterRef->DealWithNewItem(ItemToAdd.ItemName, ItemToAdd.Icon, ItemToAdd.Amount);
+	}
 	else
+	{
+		PlayerCharacterRef = Cast<ASurvivalGameCharacter>(GetOwner());
+		PlayerCharacterRef->DealWithNewItem(ItemToAdd.ItemName, ItemToAdd.Icon, ItemToAdd.Amount);
+	}
+
+	if (!bMatchFound)
 	{
 		InventoryInfo.Add(ItemToAdd);
 	}
@@ -148,5 +138,32 @@ void UInventoryComponent::DealWithInventoryButtonPress(APlayerController* Player
 void UInventoryComponent::SetEquippedItem(FInventoryStruct* SlotItem)
 {
 	CurrentEquippedItem = SlotItem;
+}
+
+void UInventoryComponent::SetPlayerCharacterRef(ASurvivalGameCharacter* ReferenceIn)
+{
+	PlayerCharacterRef = ReferenceIn;
+}
+
+void UInventoryComponent::TempAddItems()
+{
+	GetWorld()->GetTimerManager().ClearTimer(TempTimer);
+	
+	FInventoryStruct NewStruct;
+	NewStruct.ItemName = "Wood";
+	NewStruct.Amount = 1;
+	NewStruct.DisplayMesh = TempMesh;
+	NewStruct.Icon = nullptr;
+	NewStruct.bCanCraft = false;
+	AddItem(NewStruct);
+	
+	NewStruct.ItemName = "Stone";
+	NewStruct.Amount = 3;
+	NewStruct.DisplayMesh = nullptr;
+	AddItem(NewStruct);
+
+	NewStruct.ItemName = "Leaves";
+	NewStruct.Amount = 5;
+	AddItem(NewStruct);
 }
 

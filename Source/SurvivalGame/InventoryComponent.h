@@ -40,6 +40,7 @@ public:
 
 	void DealWithInventoryButtonPress(APlayerController* PlayerControllerIn);
 	void SetEquippedItem(FInventoryStruct* SlotItem);
+	void SetPlayerCharacterRef(class ASurvivalGameCharacter* ReferenceIn);
 
 	TArray<FInventoryStruct> GetInventory() const { return InventoryInfo; }
 	FInventoryStruct* GetCurrentEquippedItem() const { return  CurrentEquippedItem; }
@@ -48,4 +49,11 @@ private:
 	UInventoryWidget* InventoryWidgetRef;
 
 	FInventoryStruct* CurrentEquippedItem;
+
+	UPROPERTY()
+	ASurvivalGameCharacter* PlayerCharacterRef;
+
+	UFUNCTION()
+	void TempAddItems();
+	FTimerHandle TempTimer;
 };

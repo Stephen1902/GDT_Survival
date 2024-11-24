@@ -13,8 +13,34 @@ void UPlayerWidget::PlayDamageAnim()
 	{
 		PlayAnimation(DamageAnimation);
 
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), PlayerDamageSound, GetOwningPlayer()->GetPawn()->GetActorLocation());
+		if (PlayerDamageSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PlayerDamageSound, GetOwningPlayer()->GetPawn()->GetActorLocation());
+		}
 	}
+}
+
+void UPlayerWidget::PlayNewItemAnim()
+{
+	UE_LOG(LogTemp, Warning, TEXT("PlayNewItemAnim called."));
+	if (!IsAnimationPlaying(NewItemAnimation))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Animation not playing."));
+		PlayAnimation(NewItemAnimation);
+
+		if (NewItemSound)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Playing sound."));
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PlayerDamageSound, GetOwningPlayer()->GetPawn()->GetActorLocation());
+		}
+	}
+}
+
+void UPlayerWidget::SetNewItemInfo(const FString ItemName, UTexture2D* ItemIcon, const int32 ItemQuantity)
+{
+	const FString StringToAdd = ItemName + " (" + FString::FromInt(ItemQuantity) + ")";
+	NewItemTextBlock->SetText(FText::FromString(StringToAdd));
+	NewItemIcon->SetBrushFromTexture(ItemIcon);
 }
 
 void UPlayerWidget::UpdateEquippedItem(const FInventoryStruct* ItemInfo)

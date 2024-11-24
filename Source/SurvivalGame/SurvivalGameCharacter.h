@@ -101,6 +101,8 @@ public:
 
 	void SetEquippedItemMesh(FInventoryStruct* InventoryStructIn);
 	UInventoryComponent* GetInventoryComp() const { return InventoryComponent; }
+
+	void DealWithNewItem(const FString ItemName, UTexture2D* ItemIcon, const int32 ItemQuantity);
 private:
 	UPROPERTY()
 	UPlayerWidget* PlayerWidgetRef;

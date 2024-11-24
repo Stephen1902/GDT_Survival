@@ -105,6 +105,11 @@ void ASurvivalGameCharacter::BeginPlay()
 		}
 	}
 
+	if (InventoryComponent)
+	{
+		InventoryComponent->SetPlayerCharacterRef(this);
+	}
+	
 	DefaultWalkSpeed =  GetCharacterMovement()->GetMaxSpeed();
 	if (DefaultWalkSpeed > SprintingSpeed)
 	{
@@ -258,4 +263,19 @@ void ASurvivalGameCharacter::SetEquippedItemMesh(FInventoryStruct* InventoryStru
 	}
 	// Automatically close the inventory
 	ToggleInventory(0);
+}
+
+void ASurvivalGameCharacter::DealWithNewItem(const FString ItemName, UTexture2D* ItemIcon, const int32 ItemQuantity)
+{
+	UE_LOG(LogTemp, Warning, TEXT("DealWithNewItem called."));
+	if (PlayerWidgetRef)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerWidgetRef is valid."));
+		PlayerWidgetRef->SetNewItemInfo(ItemName, ItemIcon, ItemQuantity);
+		PlayerWidgetRef->PlayNewItemAnim();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerWidgetRef is not valid."));
+	}
 }

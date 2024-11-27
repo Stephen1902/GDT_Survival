@@ -7,7 +7,6 @@
 #include "BFL_Inventory.h"
 #include "InventoryItemSlot.generated.h"
 
-
 /**
  * 
  */

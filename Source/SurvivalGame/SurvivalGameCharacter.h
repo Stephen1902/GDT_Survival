@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BFI_Interactive.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
@@ -18,7 +19,7 @@ struct FInventoryStruct;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class ASurvivalGameCharacter : public ACharacter
+class ASurvivalGameCharacter : public ACharacter, public IBFI_Interactive
 {
 	GENERATED_BODY()
 
@@ -55,6 +56,9 @@ class ASurvivalGameCharacter : public ACharacter
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InventoryAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widgets", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UPlayerWidget> WidgetToDisplay;
@@ -84,6 +88,9 @@ protected:
 
 	/** Inventory action */
 	void ToggleInventory(const FInputActionValue& Value);
+
+	/** Interact Action */
+	void TryToInteract(const FInputActionValue& Value);
 	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -115,5 +122,7 @@ private:
 	bool bOutOfStamina;
 	float DefaultWalkSpeed;
 	float SprintingSpeed;
+
+	void Interact();
 };
 

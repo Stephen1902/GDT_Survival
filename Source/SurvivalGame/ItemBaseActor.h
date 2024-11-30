@@ -5,12 +5,13 @@
 #include "BFL_Inventory.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "BFI_Interactive.h"
 #include "ItemBaseActor.generated.h"
 
 struct FInventoryStruct;
 
 UCLASS()
-class SURVIVALGAME_API AItemBaseActor : public AActor
+class SURVIVALGAME_API AItemBaseActor : public AActor, public IBFI_Interactive
 {
 	GENERATED_BODY()
 	
@@ -45,6 +46,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void OnInteract_Implementation(FInventoryStruct& ItemToInteractWith, bool& bCanPickUp) override;
 private:
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;

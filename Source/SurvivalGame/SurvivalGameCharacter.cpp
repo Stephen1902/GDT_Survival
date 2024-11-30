@@ -13,6 +13,8 @@
 #include "InventoryComponent.h"
 #include "PlayerWidget.h"
 #include "StatComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -155,6 +157,9 @@ void ASurvivalGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		// Inventory
 		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ASurvivalGameCharacter::ToggleInventory);
+
+		// Interact
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ASurvivalGameCharacter::TryToInteract);
 	}
 	else
 	{
@@ -278,4 +283,45 @@ void ASurvivalGameCharacter::DealWithNewItem(const FString ItemName, UTexture2D*
 	{
 		UE_LOG(LogTemp, Warning, TEXT("PlayerWidgetRef is not valid."));
 	}
+}
+
+void ASurvivalGameCharacter::TryToInteract(const FInputActionValue& Value)
+{
+	if (PlayerController)
+	{
+		
+		
+		FHitResult HitResult;
+		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectsToTrace;
+		ObjectsToTrace.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
+		TArray<AActor*> IgnoredActors;
+
+		const FVector StartLoc = GetActorLocation();
+		const FVector EndLoc = (UKismetMathLibrary::GetForwardVector(GetActorRotation()) * 500.f) + StartLoc; 
+		UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), StartLoc, EndLoc, 56.f, ObjectsToTrace, false, IgnoredActors, EDrawDebugTrace::ForDuration, HitResult, true);
+		if (HitResult.GetActor())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Trying to Interact"));
+			if (IBFI_Interactive* Interacts = Cast<IBFI_Interactive>(HitResult.GetActor()))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Implements.  Calling function."));
+				FInventoryStruct ItemToGet;
+				bool bItemIsPickedUp = false;
+				Interacts->Execute_OnInteract(HitResult.GetActor(), ItemToGet, bItemIsPickedUp);
+
+				if (!ItemToGet.ItemName.IsEmpty())
+				{
+					InventoryComponent->AddItem(ItemToGet);
+					if (bItemIsPickedUp)
+					{
+						HitResult.GetActor()->Destroy();
+					}
+				}
+			}
+		}
+	}
+}
+
+void ASurvivalGameCharacter::Interact()
+{
 }

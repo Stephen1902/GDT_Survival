@@ -46,6 +46,15 @@ void AItemBaseActor::Tick(float DeltaTime)
 
 }
 
+void AItemBaseActor::OnInteract_Implementation(FInventoryStruct& ItemToInteractWith, bool& bCanPickUp)
+{
+	IBFI_Interactive::OnInteract_Implementation(ItemToInteractWith, bCanPickUp);
+
+	UE_LOG(LogTemp, Warning, TEXT("Function successully called"));
+	ItemToInteractWith = InventoryItem;
+	bCanPickUp = true;
+}
+
 #if WITH_EDITOR
 void AItemBaseActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {

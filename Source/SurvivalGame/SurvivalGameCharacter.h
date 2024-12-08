@@ -59,16 +59,25 @@ class ASurvivalGameCharacter : public ACharacter, public IBFI_Interactive
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* LeftStrikeAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widgets", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class UPlayerWidget> WidgetToDisplay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animations", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* AttackMontage;
 	
-	/** Stat Component */
+	/** Components */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UStatComponent* StatComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UInventoryComponent* InventoryComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Interaction, meta = (AllowPrivateAccess = "true"))
+	float InteractionDistance = 200.f;
 public:
 	ASurvivalGameCharacter();
 	
@@ -91,6 +100,9 @@ protected:
 
 	/** Interact Action */
 	void TryToInteract(const FInputActionValue& Value);
+
+	/** Left Strike Action */
+	void LeftStrike(const FInputActionValue& Value);
 	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -123,6 +135,15 @@ private:
 	float DefaultWalkSpeed;
 	float SprintingSpeed;
 
-	void Interact();
+	void InteractiveResource(const float HitDamage);
+
+	bool bCanAttack = true;
+	
+	UFUNCTION()
+	void AnimMontageEnded(UAnimMontage* AnimMontage, bool WasInterrupted/*bInterrupted*/);
+
+	UFUNCTION()
+	void OnAnimNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
 };
+
 

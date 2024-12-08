@@ -24,5 +24,5 @@ class SURVIVALGAME_API IBFI_Interactive
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interact|ToInteract")
-	void OnInteract(FInventoryStruct& ItemToInteractWith, bool& bCanPickUp);
+	void OnInteract(float DamageCaused, FInventoryStruct& ItemToInteractWith, APlayerController* Controller, AActor* DamageCauser);
 };

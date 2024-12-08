@@ -34,22 +34,30 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Base Actor")
 	TObjectPtr<UStaticMeshComponent> MeshComponent;
 
+	// Item(s) that this actor returns
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Base Actor")
-	FInventoryStruct InventoryItem;
+	TArray<FDataTableRowHandle> InventoryItem;
 
+	// If true, item is collected and immediately destroyed.  If not, damage is caused to its health 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Base Actor")
-	FDataTableRowHandle ItemTableRow;
+	bool bItemIsPickedUp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Base Actor")
-	bool bIsRandomItem;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Base Actor", meta=(EditCondition="!bItemIsPickedUp"))
+	float StartingHealth;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void OnInteract_Implementation(FInventoryStruct& ItemToInteractWith, bool& bCanPickUp) override;
+	virtual void OnInteract_Implementation(float Damage, FInventoryStruct& ItemToInteractWith, APlayerController* Controller, AActor* DamageCauser) override;
+
 private:
+	float CurrentHealth;
+
+	//UFUNCTION()
+	void OnDamageTaken(AActor* DamagedActor, float DamageAmount, const UDamageType* DamageType, AController* DamageInstigator, AActor* DamageCauser);
+
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
-
+	
 };

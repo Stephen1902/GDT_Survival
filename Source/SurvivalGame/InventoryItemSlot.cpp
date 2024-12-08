@@ -26,7 +26,7 @@ void UInventoryItemSlot::UpdateSlot()
 
 	if (ItemToUse)
 	{
-		ItemImage->SetBrushFromSoftTexture(ItemToUse->Icon);
+		ItemImage->SetBrushFromTexture(ItemToUse->Icon);
 		ItemText->SetText(FText::FromString(FString::FromInt(ItemToUse->Amount)));
 	}
 }

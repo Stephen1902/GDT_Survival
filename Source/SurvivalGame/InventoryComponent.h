@@ -43,7 +43,11 @@ public:
 	void SetPlayerCharacterRef(class ASurvivalGameCharacter* ReferenceIn);
 
 	TArray<FInventoryStruct> GetInventory() const { return InventoryInfo; }
-	FInventoryStruct* GetCurrentEquippedItem() const { return  CurrentEquippedItem; }
+
+	FInventoryStruct* GetCurrentEquippedItem() const { return CurrentEquippedItem; }
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory Component")
+	bool GetHasEquippedItem() const { return CurrentEquippedItem != nullptr; }
 private:
 	UPROPERTY()
 	UInventoryWidget* InventoryWidgetRef;

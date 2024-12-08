@@ -67,7 +67,6 @@ void UInventoryComponent::AddItem(FInventoryStruct ItemToAdd)
 	{
 		InventoryInfo.Add(ItemToAdd);
 	}
-
 }
 
 bool UInventoryComponent::RemoveItem(FString ItemToRemove, int32 AmountToRemove)
@@ -148,22 +147,27 @@ void UInventoryComponent::SetPlayerCharacterRef(ASurvivalGameCharacter* Referenc
 void UInventoryComponent::TempAddItems()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TempTimer);
-	
-	FInventoryStruct NewStruct;
-	NewStruct.ItemName = "Wood";
-	NewStruct.Amount = 1;
-	NewStruct.DisplayMesh = TempMesh;
-	NewStruct.Icon = nullptr;
-	NewStruct.bCanCraft = false;
-	AddItem(NewStruct);
-	
-	NewStruct.ItemName = "Stone";
-	NewStruct.Amount = 3;
-	NewStruct.DisplayMesh = nullptr;
-	AddItem(NewStruct);
 
-	NewStruct.ItemName = "Leaves";
-	NewStruct.Amount = 5;
-	AddItem(NewStruct);
+	if (FInventoryStruct* NewRow = ItemDataTable->FindRow<FInventoryStruct>("Wood", ""))
+	{
+		FInventoryStruct NewStruct;
+		NewStruct.ItemName = NewRow->ItemName;
+		NewStruct.Amount = NewRow->Amount;
+		NewStruct.DisplayMesh = NewRow->DisplayMesh;
+		NewStruct.Icon = NewRow->Icon;
+		NewStruct.bCanCraft = NewRow->bCanCraft;
+		AddItem(NewStruct);
+
+		if ((NewRow = ItemDataTable->FindRow<FInventoryStruct>("Stone", "")))
+		{
+			NewStruct.ItemName = NewRow->ItemName;
+			NewStruct.Amount = NewRow->Amount;
+			NewStruct.DisplayMesh = NewRow->DisplayMesh;
+			NewStruct.Icon = NewRow->Icon;
+			NewStruct.bCanCraft = NewRow->bCanCraft;
+			AddItem(NewStruct);
+		}
+	}
+
 }
 

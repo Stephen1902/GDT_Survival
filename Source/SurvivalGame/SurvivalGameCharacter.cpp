@@ -58,7 +58,7 @@ ASurvivalGameCharacter::ASurvivalGameCharacter()
 
 	// Create the mesh component which will display equipped items
 	EquippedItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Equipped Items"));
-	EquippedItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "hand_r");
+	EquippedItemMesh->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "EquippedItem_r");
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -111,6 +111,12 @@ void ASurvivalGameCharacter::BeginPlay()
 	{
 		InventoryComponent->SetPlayerCharacterRef(this);
 	}
+
+	if (AttackMontage)
+	{
+		GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ASurvivalGameCharacter::AnimMontageEnded);
+		GetMesh()->GetAnimInstance()->OnPlayMontageNotifyBegin.AddDynamic(this, &ASurvivalGameCharacter::OnAnimNotify);
+	}
 	
 	DefaultWalkSpeed =  GetCharacterMovement()->GetMaxSpeed();
 	if (DefaultWalkSpeed > SprintingSpeed)
@@ -160,6 +166,7 @@ void ASurvivalGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		// Interact
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ASurvivalGameCharacter::TryToInteract);
+		EnhancedInputComponent->BindAction(LeftStrikeAction, ETriggerEvent::Started, this, &ASurvivalGameCharacter::LeftStrike);
 	}
 	else
 	{
@@ -287,41 +294,65 @@ void ASurvivalGameCharacter::DealWithNewItem(const FString ItemName, UTexture2D*
 
 void ASurvivalGameCharacter::TryToInteract(const FInputActionValue& Value)
 {
+	InteractiveResource(0.f);
+}
+
+void ASurvivalGameCharacter::LeftStrike(const FInputActionValue& Value)
+{
+	if (AttackMontage)
+	{
+		if (bCanAttack)
+		{
+			bCanAttack = false;
+			GetMesh()->GetAnimInstance()->Montage_Play(AttackMontage);
+		}
+	}
+	else
+	{
+		InteractiveResource(1.0f);
+	}
+}
+
+void ASurvivalGameCharacter::InteractiveResource(const float HitDamage)
+{
 	if (PlayerController)
 	{
-		
-		
 		FHitResult HitResult;
 		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectsToTrace;
 		ObjectsToTrace.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
 		TArray<AActor*> IgnoredActors;
 
+		FRotator ActorRot = GetActorRotation();
+		if (const APlayerCameraManager* PlayerCameraManager = PlayerController->PlayerCameraManager)
+		{
+			ActorRot = PlayerCameraManager->GetCameraRotation();
+		}
+		
 		const FVector StartLoc = GetActorLocation();
-		const FVector EndLoc = (UKismetMathLibrary::GetForwardVector(GetActorRotation()) * 500.f) + StartLoc; 
+		const FVector EndLoc = (UKismetMathLibrary::GetForwardVector(ActorRot) * InteractionDistance) + StartLoc; 
 		UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), StartLoc, EndLoc, 56.f, ObjectsToTrace, false, IgnoredActors, EDrawDebugTrace::ForDuration, HitResult, true);
 		if (HitResult.GetActor())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Trying to Interact"));
-			if (IBFI_Interactive* Interacts = Cast<IBFI_Interactive>(HitResult.GetActor()))
+			if (UKismetSystemLibrary::DoesImplementInterface(HitResult.GetActor(), UBFI_Interactive::StaticClass()))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Implements.  Calling function."));
 				FInventoryStruct ItemToGet;
-				bool bItemIsPickedUp = false;
-				Interacts->Execute_OnInteract(HitResult.GetActor(), ItemToGet, bItemIsPickedUp);
+				Execute_OnInteract(HitResult.GetActor(), HitDamage, ItemToGet, PlayerController, this);
 
 				if (!ItemToGet.ItemName.IsEmpty())
 				{
 					InventoryComponent->AddItem(ItemToGet);
-					if (bItemIsPickedUp)
-					{
-						HitResult.GetActor()->Destroy();
-					}
 				}
 			}
 		}
 	}
 }
 
-void ASurvivalGameCharacter::Interact()
+void ASurvivalGameCharacter::AnimMontageEnded(UAnimMontage* AnimMontage, bool WasInterrupted/*bInterrupted*/)
 {
+	bCanAttack = true;
+}
+
+void ASurvivalGameCharacter::OnAnimNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+{
+	InteractiveResource(1.0f);
 }

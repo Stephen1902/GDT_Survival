@@ -25,4 +25,7 @@ class SURVIVALGAME_API IBFI_Interactive
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interact|ToInteract")
 	void OnInteract(float DamageCaused, FInventoryStruct& ItemToInteractWith, APlayerController* Controller, AActor* DamageCauser);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interact|ToInteract")
+	void OnInteractFoliage(int32 FoliageInteractedWith, float DamageCaused, FInventoryStruct& ItemToInteractWith);
 };

@@ -320,6 +320,7 @@ void ASurvivalGameCharacter::InteractiveResource(const float HitDamage)
 		FHitResult HitResult;
 		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectsToTrace;
 		ObjectsToTrace.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
+		ObjectsToTrace.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
 		TArray<AActor*> IgnoredActors;
 
 		FRotator ActorRot = GetActorRotation();
@@ -333,16 +334,25 @@ void ASurvivalGameCharacter::InteractiveResource(const float HitDamage)
 		UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), StartLoc, EndLoc, 56.f, ObjectsToTrace, false, IgnoredActors, EDrawDebugTrace::ForDuration, HitResult, true);
 		if (HitResult.GetActor())
 		{
+			FInventoryStruct ItemToGet;
+			
 			if (UKismetSystemLibrary::DoesImplementInterface(HitResult.GetActor(), UBFI_Interactive::StaticClass()))
 			{
-				FInventoryStruct ItemToGet;
 				Execute_OnInteract(HitResult.GetActor(), HitDamage, ItemToGet, PlayerController, this);
-
-				if (!ItemToGet.ItemName.IsEmpty())
-				{
-					InventoryComponent->AddItem(ItemToGet);
-				}
 			}
+			else if (UKismetSystemLibrary::DoesImplementInterface(HitResult.GetComponent(), UBFI_Interactive::StaticClass()))
+			{
+				Execute_OnInteractFoliage(HitResult.GetComponent(), HitResult.Item, HitDamage, ItemToGet);
+			}
+
+			if (!ItemToGet.ItemName.IsEmpty())
+			{
+				InventoryComponent->AddItem(ItemToGet);
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to hit an actor with the line trace"));
 		}
 	}
 }

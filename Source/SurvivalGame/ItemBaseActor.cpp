@@ -1,11 +1,9 @@
 // Copyright 2024 DME Games
 
-
 #include "ItemBaseActor.h"
 #include "GameFramework/Controller.h"
 #include "SurvivalGameCharacter.h"
 #include "Components/SphereComponent.h"
-#include "Engine/DamageEvents.h"
 
 // Sets default values
 #if WITH_EDITOR

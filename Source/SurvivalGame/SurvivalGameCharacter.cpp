@@ -15,6 +15,7 @@
 #include "StatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "NiagaraFunctionLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -343,6 +344,10 @@ void ASurvivalGameCharacter::InteractiveResource(const float HitDamage)
 			else if (UKismetSystemLibrary::DoesImplementInterface(HitResult.GetComponent(), UBFI_Interactive::StaticClass()))
 			{
 				Execute_OnInteractFoliage(HitResult.GetComponent(), HitResult.Item, HitDamage, ItemToGet);
+
+				// Set the hit location of the HitResult to use on the animation
+				HitLocation = HitResult.Location;
+				HitLocation.Z += 50.f;
 			}
 
 			if (!ItemToGet.ItemName.IsEmpty())
@@ -365,4 +370,9 @@ void ASurvivalGameCharacter::AnimMontageEnded(UAnimMontage* AnimMontage, bool Wa
 void ASurvivalGameCharacter::OnAnimNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
 	InteractiveResource(1.0f);
+
+	if (InteractHitNiagara)
+	{
+		UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), InteractHitNiagara,  HitLocation, FRotator(180.f, 0.f, 0.f));
+	}
 }

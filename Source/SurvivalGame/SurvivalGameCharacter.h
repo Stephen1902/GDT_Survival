@@ -78,6 +78,10 @@ class ASurvivalGameCharacter : public ACharacter, public IBFI_Interactive
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Interaction, meta = (AllowPrivateAccess = "true"))
 	float InteractionDistance = 200.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Interaction, meta = (AllowPrivateAccess = "true"))
+	class UNiagaraSystem* InteractHitNiagara;
+	
 public:
 	ASurvivalGameCharacter();
 	
@@ -144,6 +148,8 @@ private:
 
 	UFUNCTION()
 	void OnAnimNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
+
+	FVector HitLocation;
 };
 
 

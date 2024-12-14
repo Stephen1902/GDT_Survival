@@ -37,6 +37,7 @@ void UFoliageMeshComponent::OnInteractFoliage_Implementation(int32 FoliageIntera
 			ItemToInteractWith.DisplayMesh = Row->DisplayMesh;
 			ItemToInteractWith.Icon = Row->Icon;
 			ItemToInteractWith.bCanCraft = Row->bCanCraft;
+			ItemToInteractWith.CraftingItems = Row->CraftingItems;
 		}
 
 		if (TreeHittingSound)

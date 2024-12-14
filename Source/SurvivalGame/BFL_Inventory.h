@@ -7,6 +7,19 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "BFL_Inventory.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FCraftingItem
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Crafting")
+	FDataTableRowHandle InventoryItem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Crafting", meta=(ClampMin=1))
+	int32 NumberRequired;
+};
+
 USTRUCT(BlueprintType)
 struct FInventoryStruct : public FTableRowBase
 {
@@ -27,6 +40,9 @@ struct FInventoryStruct : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory")
 	bool bCanCraft;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Inventory", meta=(EditCondition="bCanCraft"))
+	TArray<FCraftingItem> CraftingItems;
+	
 	FInventoryStruct()
 	{
 		ItemName = "";
@@ -36,6 +52,7 @@ struct FInventoryStruct : public FTableRowBase
 		bCanCraft = false;
 	}
 };
+
 
 /**
  * 

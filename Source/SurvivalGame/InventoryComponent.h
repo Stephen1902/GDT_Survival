@@ -48,6 +48,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory Component")
 	bool GetHasEquippedItem() const { return CurrentEquippedItem != nullptr; }
+
+	bool CanCraft(FInventoryStruct* InventoryStructIn);
 private:
 	UPROPERTY()
 	UInventoryWidget* InventoryWidgetRef;

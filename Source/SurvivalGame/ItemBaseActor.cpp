@@ -67,6 +67,7 @@ void AItemBaseActor::OnInteract_Implementation(float Damage, FInventoryStruct& I
 				ItemToInteractWith.DisplayMesh = Row->DisplayMesh;
 				ItemToInteractWith.Icon = Row->Icon;
 				ItemToInteractWith.bCanCraft = Row->bCanCraft;
+				ItemToInteractWith.CraftingItems = Row->CraftingItems;
 			}
 			else
 			{

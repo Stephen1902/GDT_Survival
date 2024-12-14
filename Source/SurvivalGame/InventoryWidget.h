@@ -23,9 +23,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
 	class UInventoryItemGrid* InventoryItemGrid;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
+	UInventoryItemGrid* CraftItemGrid;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
+	class UCraftWidget* CraftWidgetBP;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
+	class UButton* CraftButton;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Widget")
 	TSubclassOf<class UInventoryItemSlot> WidgetItemSlot;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Widget")
+	TSubclassOf<class UCraftItemSlotWidget> CraftItemSlot;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Widget")
 	int32 GridSlotsPerRow = 5;
 private:

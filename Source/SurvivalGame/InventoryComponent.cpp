@@ -144,6 +144,47 @@ void UInventoryComponent::SetPlayerCharacterRef(ASurvivalGameCharacter* Referenc
 	PlayerCharacterRef = ReferenceIn;
 }
 
+bool UInventoryComponent::CanCraft(FInventoryStruct* InventoryStructIn)
+{
+	bool bReturnCraft = true;
+
+	// Check if there are any items in the data table used for crafting
+	if (InventoryStructIn->CraftingItems.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Trying to craft an item but there are no CraftingItems in the array."))
+		bReturnCraft = false;
+	}
+	else
+	{
+		// Check if there are any items currently in the array
+		if (InventoryInfo.Num() == 0)
+		{
+			bReturnCraft = false;
+		}
+		else
+		{
+			for (int32 i = 0; i < InventoryStructIn->CraftingItems.Num(); ++i)
+			{
+				for (int32 j = 0; j < InventoryInfo.Num(); ++j)
+				{
+					// Check if the item in the inventory matches the items in the crafting requirements
+					if (InventoryStructIn->CraftingItems[i].InventoryItem.RowName.ToString() == InventoryInfo[j].ItemName)
+					{
+						// Check if the amount in the inventory is enough to craft the item
+						if (InventoryStructIn->CraftingItems[i].NumberRequired > InventoryInfo[j].Amount)
+						{
+							bReturnCraft = false;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return  bReturnCraft;
+}
+
 void UInventoryComponent::TempAddItems()
 {
 	GetWorld()->GetTimerManager().ClearTimer(TempTimer);
@@ -156,6 +197,7 @@ void UInventoryComponent::TempAddItems()
 		NewStruct.DisplayMesh = NewRow->DisplayMesh;
 		NewStruct.Icon = NewRow->Icon;
 		NewStruct.bCanCraft = NewRow->bCanCraft;
+		NewStruct.CraftingItems = NewRow->CraftingItems;
 		AddItem(NewStruct);
 
 		if ((NewRow = ItemDataTable->FindRow<FInventoryStruct>("Stone", "")))
@@ -165,6 +207,7 @@ void UInventoryComponent::TempAddItems()
 			NewStruct.DisplayMesh = NewRow->DisplayMesh;
 			NewStruct.Icon = NewRow->Icon;
 			NewStruct.bCanCraft = NewRow->bCanCraft;
+			NewStruct.CraftingItems = NewRow->CraftingItems;
 			AddItem(NewStruct);
 		}
 	}

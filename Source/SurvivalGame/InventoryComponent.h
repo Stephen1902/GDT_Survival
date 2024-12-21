@@ -41,8 +41,10 @@ public:
 	void DealWithInventoryButtonPress(APlayerController* PlayerControllerIn);
 	void SetEquippedItem(FInventoryStruct* SlotItem);
 	void SetPlayerCharacterRef(class ASurvivalGameCharacter* ReferenceIn);
+	ASurvivalGameCharacter* GetPlayerCharacterRef() const;
 
 	TArray<FInventoryStruct> GetInventory() const { return InventoryInfo; }
+	UDataTable* GetDataTable() const { return ItemDataTable; } 
 
 	FInventoryStruct* GetCurrentEquippedItem() const { return CurrentEquippedItem; }
 

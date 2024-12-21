@@ -20,4 +20,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Craft Widget", meta=(BindWidget))
 	class UVerticalBox* CraftVerticalBox;
+
+public:
+	void ClearVerticalBox() const;
+	void AddVerticalBoxChild(class UCraftItemSlotWidget* WidgetToAdd) const;
 };

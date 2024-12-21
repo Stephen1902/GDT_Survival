@@ -24,7 +24,7 @@ protected:
 	class UInventoryItemGrid* InventoryItemGrid;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
-	UInventoryItemGrid* CraftItemGrid;
+	class UCraftItemGrid* CraftItemGrid;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
 	class UCraftWidget* CraftWidgetBP;
@@ -52,6 +52,11 @@ private:
 
 	int32 RowAsInt = 0;
 	int32 ColumnAsInt = 0;
+
+	void DisplayInventory();
+	void DisplayCraftedItems();
+	void DisplayCraftingResources(TArray<FCraftingItem*> ResourceStructArray, FInventoryStruct* ItemToCraft);
 public:
 	void SetInventoryRef(UInventoryComponent* InventoryIn);
+	void UpdateCratedItemNeeds(FInventoryStruct* ItemToUpdate);
 };

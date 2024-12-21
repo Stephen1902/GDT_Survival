@@ -17,13 +17,16 @@ class SURVIVALGAME_API UCraftItemSlotWidget : public UUserWidget
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crafting Widget", meta=(BindWidget))
-	class UButton* ItemButton;
+	class UButton* CraftButton;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crafting Widget", meta=(BindWidget))
-	class UVerticalBox* ItemVerticalBox;
+	class UVerticalBox* CraftVerticalBox;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crafting Widget", meta=(BindWidget))
-	class UImage* ItemImage;
+	class UImage* CraftImage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crafting Widget", meta=(BindWidget))
+	class UTextBlock* CraftNameText;
 	
 	// Color to change the button to when it is equipped
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Crafting Widget")
@@ -46,8 +49,13 @@ private:
 
 	UPROPERTY()
 	class ASurvivalGameCharacter* PlayerRef;
+
+	UPROPERTY()
+	class UInventoryWidget* InventoryWidgetRef;
+
 public:
-	void SetSlotInfo(ASurvivalGameCharacter* PlayerRefIn, FInventoryStruct* ItemInfo);
+	void SetSlotInfo(FInventoryStruct* ItemInfo);
+	void SetInventoryWidgetRef(UInventoryWidget* ReferenceIn);
 
 	void SetButtonStyle(const bool CanCraft);
 

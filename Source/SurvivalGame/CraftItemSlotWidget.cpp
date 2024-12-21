@@ -3,9 +3,11 @@
 
 #include "CraftItemSlotWidget.h"
 #include "InventoryComponent.h"
+#include "InventoryWidget.h"
 #include "SurvivalGameCharacter.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 
 void UCraftItemSlotWidget::NativeConstruct()
 {
@@ -16,7 +18,7 @@ void UCraftItemSlotWidget::NativeConstruct()
 		GetWorld()->GetTimerManager().SetTimer(UpdateDelayHandle, this, &UCraftItemSlotWidget::UpdateSlot, GetWorld()->GetDeltaSeconds(), false, GetWorld()->GetDeltaSeconds());
 	}
 
-	ItemButton->OnClicked.AddDynamic(this, &UCraftItemSlotWidget::ButtonPressed);
+	CraftButton->OnClicked.AddDynamic(this, &UCraftItemSlotWidget::ButtonPressed);
 }
 
 void UCraftItemSlotWidget::UpdateSlot()
@@ -25,26 +27,36 @@ void UCraftItemSlotWidget::UpdateSlot()
 
 	if (ItemToUse)
 	{
-		ItemImage->SetBrushFromTexture(ItemToUse->Icon);
+		CraftImage->SetBrushFromTexture(ItemToUse->Icon);
+		CraftNameText->SetText(FText::FromString(ItemToUse->ItemName));
 
+		if (!PlayerRef)
+		{
+			PlayerRef = Cast<ASurvivalGameCharacter>(GetOwningPlayer()->GetCharacter());
+		}
+		
 		if (PlayerRef)
 		{
 			SetButtonStyle(PlayerRef->GetInventoryComp()->CanCraft(ItemToUse));
 		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("CraftItemSlotWidget does not have a PlayerRef"));
+		}
 	}
+	
 }
 
 void UCraftItemSlotWidget::ButtonPressed()
 {
+	if (InventoryWidgetRef)
+	{
+		InventoryWidgetRef->UpdateCratedItemNeeds(ItemToUse);
+	}
 }
 
-void UCraftItemSlotWidget::SetSlotInfo(ASurvivalGameCharacter* PlayerRefIn, FInventoryStruct* ItemInfo)
+void UCraftItemSlotWidget::SetSlotInfo(FInventoryStruct* ItemInfo)
 {
-	if (PlayerRefIn)
-	{
-		PlayerRef = PlayerRefIn;
-	}
-
 	if (ItemInfo != nullptr)
 	{
 		ItemToUse = ItemInfo;
@@ -52,9 +64,18 @@ void UCraftItemSlotWidget::SetSlotInfo(ASurvivalGameCharacter* PlayerRefIn, FInv
 	}
 }
 
+void UCraftItemSlotWidget::SetInventoryWidgetRef(UInventoryWidget* ReferenceIn)
+{
+	if (ReferenceIn)
+	{
+		InventoryWidgetRef = ReferenceIn;
+	}
+}
+
 void UCraftItemSlotWidget::SetButtonStyle(const bool CanCraft)
 {
-	FButtonStyle ButtonStyle = ItemButton->GetStyle();
+	UE_LOG(LogTemp, Warning, TEXT("ItemToUse is %s and CanCraft is %s"), *ItemToUse->ItemName, CanCraft ? TEXT("true") : TEXT("false"));
+	FButtonStyle ButtonStyle = CraftButton->GetStyle();
 	FSlateBrush ButtonBrush = ButtonStyle.Normal;
 	if (CanCraft)
 	{
@@ -65,5 +86,5 @@ void UCraftItemSlotWidget::SetButtonStyle(const bool CanCraft)
 		ButtonBrush.TintColor = FSlateColor(FLinearColor(CannotCraftColour));
 	}
 	ButtonStyle.Normal = ButtonBrush;
-	ItemButton->SetStyle(ButtonStyle);
+	CraftButton->SetStyle(ButtonStyle);
 }

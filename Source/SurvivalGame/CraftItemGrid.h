@@ -4,24 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "InventoryItemGrid.generated.h"
+#include "CraftItemGrid.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SURVIVALGAME_API UInventoryItemGrid : public UUserWidget
+class SURVIVALGAME_API UCraftItemGrid : public UUserWidget
 {
 	GENERATED_BODY()
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
-	class UBorder* InventoryBorder;
+	class UBorder* CraftBorder;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
-	class UUniformGridPanel* InventoryGrid;
+	class UScrollBox* CraftGrid;
 
 public:
-	UUniformGridPanel* GetInventoryGrid() const { return InventoryGrid; }
-	UUniformGridPanel* GetCraftGrid() const { return InventoryGrid; }
+	UScrollBox* GetCraftGrid() const { return CraftGrid; }
+
 };

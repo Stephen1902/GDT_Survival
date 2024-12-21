@@ -144,6 +144,16 @@ void UInventoryComponent::SetPlayerCharacterRef(ASurvivalGameCharacter* Referenc
 	PlayerCharacterRef = ReferenceIn;
 }
 
+ASurvivalGameCharacter* UInventoryComponent::GetPlayerCharacterRef() const
+{
+	if (PlayerCharacterRef)
+	{
+		return PlayerCharacterRef;
+	}
+
+	return  nullptr;
+}
+
 bool UInventoryComponent::CanCraft(FInventoryStruct* InventoryStructIn)
 {
 	bool bReturnCraft = true;
@@ -159,17 +169,22 @@ bool UInventoryComponent::CanCraft(FInventoryStruct* InventoryStructIn)
 		// Check if there are any items currently in the array
 		if (InventoryInfo.Num() == 0)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has nothing in their inventory."));
 			bReturnCraft = false;
 		}
 		else
 		{
 			for (int32 i = 0; i < InventoryStructIn->CraftingItems.Num(); ++i)
 			{
+				// Check if there is an item matched on the name
+				bool bMatchedItem = false;
+
 				for (int32 j = 0; j < InventoryInfo.Num(); ++j)
 				{
 					// Check if the item in the inventory matches the items in the crafting requirements
 					if (InventoryStructIn->CraftingItems[i].InventoryItem.RowName.ToString() == InventoryInfo[j].ItemName)
 					{
+						bMatchedItem = true;
 						// Check if the amount in the inventory is enough to craft the item
 						if (InventoryStructIn->CraftingItems[i].NumberRequired > InventoryInfo[j].Amount)
 						{
@@ -177,6 +192,12 @@ bool UInventoryComponent::CanCraft(FInventoryStruct* InventoryStructIn)
 							break;
 						}
 					}
+				}
+				
+				if (!bMatchedItem)
+				{
+					bReturnCraft = false;
+					break;
 				}
 			}
 		}

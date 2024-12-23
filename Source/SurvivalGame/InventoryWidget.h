@@ -31,6 +31,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
 	class UButton* CraftButton;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
+	class UBorder* CharacterBorder;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory Widget", meta=(BindWidget))
+	class UImage* CharacterImage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Widget")
 	TSubclassOf<class UInventoryItemSlot> WidgetItemSlot;

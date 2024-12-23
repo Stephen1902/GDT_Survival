@@ -16,6 +16,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Components/SceneCaptureComponent2D.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -44,6 +45,13 @@ ASurvivalGameCharacter::ASurvivalGameCharacter()
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
+
+	// Scene capture camera for viewing the player in the inventory
+	SceneCaptureComp = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("Scene Capture Comp"));
+	SceneCaptureComp->SetupAttachment(GetRootComponent());
+	SceneCaptureComp->SetRelativeLocation(FVector(325.f, 0.f, 0.f));
+	SceneCaptureComp->SetRelativeRotation(FRotator(0.f, -180.f, 0.f));
+	SceneCaptureComp->FOVAngle = 20.f;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -124,6 +132,9 @@ void ASurvivalGameCharacter::BeginPlay()
 	{
 		SprintingSpeed = DefaultWalkSpeed * 1.5f;
 	}
+
+	// Make sure that only the character is rendered, not the background as well
+	SceneCaptureComp->ShowOnlyActorComponents(this, true);
 }
 
 //////////////////////////////////////////////////////////////////////////

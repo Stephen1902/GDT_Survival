@@ -23,6 +23,10 @@ class ASurvivalGameCharacter : public ACharacter, public IBFI_Interactive
 {
 	GENERATED_BODY()
 
+	/** Scene capture component for viewing the player in the inventory */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	USceneCaptureComponent2D* SceneCaptureComp;
+	
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;

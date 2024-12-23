@@ -38,16 +38,16 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
-void UInventoryComponent::AddItem(FInventoryStruct ItemToAdd)
+void UInventoryComponent::AddItem(FInventoryStruct* ItemToAdd)
 {
 	
 	bool bMatchFound = false;
 
 	for (auto& InventoryLine : InventoryInfo)
 	{
-		if (InventoryLine.ItemName == ItemToAdd.ItemName)
+		if (InventoryLine.ItemName == ItemToAdd->ItemName)
 		{
-			InventoryLine.Amount = InventoryLine.Amount + ItemToAdd.Amount;
+			InventoryLine.Amount = InventoryLine.Amount + ItemToAdd->Amount;
 			bMatchFound = true;
 			break;
 		}
@@ -55,17 +55,17 @@ void UInventoryComponent::AddItem(FInventoryStruct ItemToAdd)
 
 	if (PlayerCharacterRef)
 	{
-		PlayerCharacterRef->DealWithNewItem(ItemToAdd.ItemName, ItemToAdd.Icon, ItemToAdd.Amount);
+		PlayerCharacterRef->DealWithNewItem(ItemToAdd->ItemName, ItemToAdd->Icon, ItemToAdd->Amount);
 	}
 	else
 	{
 		PlayerCharacterRef = Cast<ASurvivalGameCharacter>(GetOwner());
-		PlayerCharacterRef->DealWithNewItem(ItemToAdd.ItemName, ItemToAdd.Icon, ItemToAdd.Amount);
+		PlayerCharacterRef->DealWithNewItem(ItemToAdd->ItemName, ItemToAdd->Icon, ItemToAdd->Amount);
 	}
 
 	if (!bMatchFound)
 	{
-		InventoryInfo.Add(ItemToAdd);
+		InventoryInfo.Add(*ItemToAdd);
 	}
 }
 
@@ -219,7 +219,7 @@ void UInventoryComponent::TempAddItems()
 		NewStruct.Icon = NewRow->Icon;
 		NewStruct.bCanCraft = NewRow->bCanCraft;
 		NewStruct.CraftingItems = NewRow->CraftingItems;
-		AddItem(NewStruct);
+		AddItem(&NewStruct);
 
 		if ((NewRow = ItemDataTable->FindRow<FInventoryStruct>("Stone", "")))
 		{
@@ -229,7 +229,7 @@ void UInventoryComponent::TempAddItems()
 			NewStruct.Icon = NewRow->Icon;
 			NewStruct.bCanCraft = NewRow->bCanCraft;
 			NewStruct.CraftingItems = NewRow->CraftingItems;
-			AddItem(NewStruct);
+			AddItem(&NewStruct);
 		}
 	}
 

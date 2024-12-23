@@ -27,7 +27,14 @@ void UInventoryItemSlot::UpdateSlot()
 	if (ItemToUse)
 	{
 		ItemImage->SetBrushFromTexture(ItemToUse->Icon);
-		ItemText->SetText(FText::FromString(FString::FromInt(ItemToUse->Amount)));
+		if (QtyToDisplay == -1)
+		{
+			ItemText->SetText(FText::FromString(FString::FromInt(ItemToUse->Amount)));
+		}
+		else
+		{
+			ItemText->SetText(FText::FromString(FString::FromInt(QtyToDisplay)));
+		}
 	}
 }
 
@@ -44,11 +51,12 @@ void UInventoryItemSlot::ButtonPressed()
 	}
 }
 
-void UInventoryItemSlot::SetNewSlotInfo(FInventoryStruct* ItemInfo)
+void UInventoryItemSlot::SetNewSlotInfo(FInventoryStruct* ItemIn, int32 ItemAmount)
 {
-	if (ItemInfo != nullptr)
+	if (ItemIn != nullptr)
 	{
-		ItemToUse = ItemInfo;
+		ItemToUse = ItemIn;
+		QtyToDisplay = ItemAmount;
 		UpdateSlot();
 	}
 	else

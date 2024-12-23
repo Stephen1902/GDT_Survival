@@ -23,5 +23,6 @@ protected:
 
 public:
 	void ClearVerticalBox() const;
-	void AddVerticalBoxChild(class UCraftItemSlotWidget* WidgetToAdd) const;
+	void AddVerticalBoxChild(class UInventoryItemSlot* WidgetToAdd) const;
+	//void SetItemInfo(class FInventoryItemStruct* ItemInfo);
 };

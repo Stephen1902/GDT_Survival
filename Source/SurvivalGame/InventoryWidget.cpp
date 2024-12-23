@@ -1,13 +1,13 @@
 // Copyright 2024 DME Games
 
 #include "InventoryWidget.h"
-
 #include "CraftItemGrid.h"
 #include "CraftItemSlotWidget.h"
 #include "CraftWidget.h"
 #include "InventoryComponent.h"
 #include "InventoryItemGrid.h"
 #include "InventoryItemSlot.h"
+#include "Components/Button.h"
 #include "Components/ScrollBox.h"
 #include "Components/UniformGridPanel.h"
 
@@ -18,12 +18,35 @@ void UInventoryWidget::NativeConstruct()
 	DisplayInventory();
 	DisplayCraftedItems();
 
+	CraftButton->OnClicked.AddDynamic(this, &UInventoryWidget::OnCraftButtonClicked);
+
+}
+
+void UInventoryWidget::OnCraftButtonClicked()
+{
+	if (InventoryComponentRef && ItemToCraft)
+	{
+		if (InventoryComponentRef->CanCraft(ItemToCraft))
+		{
+			for (auto& It : ItemToCraft->CraftingItems)
+			{
+				if (FInventoryStruct* Row = InventoryComponentRef->GetDataTable()->FindRow<FInventoryStruct>(It.InventoryItem.RowName, ""))
+				{
+					InventoryComponentRef->RemoveItem(Row->ItemName, It.NumberRequired);
+				}
+			}
+			InventoryComponentRef->AddItem(ItemToCraft);
+			DisplayInventory();
+			DisplayCraftedItems();
+		}
+	}
 }
 
 void UInventoryWidget::DisplayInventory()
 {
 	ColumnAsInt = 0;
 	RowAsInt = 0;
+	InventoryItemGrid->GetInventoryGrid()->ClearChildren();
 	
 	if (InventoryComponentRef && WidgetItemSlot)
 	{
@@ -33,7 +56,7 @@ void UInventoryWidget::DisplayInventory()
 		for (int32 i = 0; i < InventoryToDisplay.Num(); ++i)
 		{
 			UInventoryItemSlot* NewItemSlot = CreateWidget<UInventoryItemSlot>(GetOwningPlayer(), WidgetItemSlot);
-			NewItemSlot->SetNewSlotInfo(&InventoryToDisplay[i]);
+			NewItemSlot->SetNewSlotInfo(&InventoryToDisplay[i], -1);
 			InventorySlotArray.Add(NewItemSlot);
 
 			InventoryItemGrid->GetInventoryGrid()->AddChildToUniformGrid(NewItemSlot, RowAsInt, ColumnAsInt);
@@ -68,9 +91,6 @@ void UInventoryWidget::DisplayCraftedItems()
 {
 	if (InventoryComponentRef && CraftItemSlot)
 	{
-		ColumnAsInt = 0;
-		RowAsInt = 0;
-
 		CraftItemGrid->GetCraftGrid()->ClearChildren();
 		if (const UDataTable* CraftDataTable = InventoryComponentRef->GetDataTable())
 		{
@@ -89,16 +109,15 @@ void UInventoryWidget::DisplayCraftedItems()
 							CraftItemGrid->GetCraftGrid()->AddChild(NewSlot);
 						}
 					}
-						
 				}
 			}
 		}
 	}
 }
-
+/*
 void UInventoryWidget::DisplayCraftingResources(TArray<FCraftingItem*> ResourceStructArray, FInventoryStruct* ItemToCraft)
 {
-	CraftWidgetBP->ClearVerticalBox();
+	CraftItemGrid->GetCraftGrid()->ClearChildren();
 
 	if (CraftItemSlot)
 	{
@@ -107,13 +126,13 @@ void UInventoryWidget::DisplayCraftingResources(TArray<FCraftingItem*> ResourceS
 			if (FInventoryStruct* Row = It->InventoryItem.DataTable->FindRow<FInventoryStruct>(It->InventoryItem.RowName, ""))
 			{
 				UCraftItemSlotWidget* NewSlot = CreateWidget<UCraftItemSlotWidget>(GetOwningPlayer(), CraftItemSlot);
-				CraftWidgetBP->AddVerticalBoxChild(NewSlot);
+				CraftItemGrid->GetCraftGrid()->AddChild(NewSlot);
 				NewSlot->SetSlotInfo(Row);
 			}
 		}
 	}
 }
-
+*/
 void UInventoryWidget::SetInventoryRef(UInventoryComponent* InventoryIn)
 {
 	if (InventoryIn)
@@ -124,5 +143,23 @@ void UInventoryWidget::SetInventoryRef(UInventoryComponent* InventoryIn)
 
 void UInventoryWidget::UpdateCratedItemNeeds(FInventoryStruct* ItemToUpdate)
 {
-	
+	CraftWidgetBP->ClearVerticalBox();
+
+	if (ItemToUpdate && WidgetItemSlot)
+	{
+		ItemToCraft = ItemToUpdate; 
+		for (const auto& It : ItemToUpdate->CraftingItems)
+		{
+			if (FInventoryStruct* Row = It.InventoryItem.DataTable->FindRow<FInventoryStruct>(It.InventoryItem.RowName, ""))
+			{
+				UInventoryItemSlot* NewSlot = CreateWidget<UInventoryItemSlot>(GetOwningPlayer(), WidgetItemSlot);
+				NewSlot->SetNewSlotInfo(Row, It.NumberRequired);
+				CraftWidgetBP->AddVerticalBoxChild(NewSlot);
+			}
+		}
+	}
+	else
+	{
+		ItemToCraft = nullptr;
+	}
 }

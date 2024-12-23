@@ -47,15 +47,18 @@ private:
 	UInventoryComponent* InventoryComponentRef;
 
 	FInventoryStruct* CurrentSetItem;
+	FInventoryStruct* ItemToCraft;
 
 	virtual void NativeConstruct() override;
+	UFUNCTION()
+	void OnCraftButtonClicked();
 
 	int32 RowAsInt = 0;
 	int32 ColumnAsInt = 0;
 
 	void DisplayInventory();
 	void DisplayCraftedItems();
-	void DisplayCraftingResources(TArray<FCraftingItem*> ResourceStructArray, FInventoryStruct* ItemToCraft);
+	//void DisplayCraftingResources(TArray<FCraftingItem*> ResourceStructArray, FInventoryStruct* ItemToCraft);
 public:
 	void SetInventoryRef(UInventoryComponent* InventoryIn);
 	void UpdateCratedItemNeeds(FInventoryStruct* ItemToUpdate);

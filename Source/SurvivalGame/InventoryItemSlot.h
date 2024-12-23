@@ -32,8 +32,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory Widget")
 	FLinearColor EquippedColour;
 	
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory Widget", meta=(ExposeOnSpawn))
-	FInventoryStruct* ItemToUse;
+	FInventoryStruct* ItemToUse;	
+	int32 QtyToDisplay;
 private:
 	FTimerHandle UpdateDelayHandle;
 
@@ -44,7 +44,7 @@ private:
 	UFUNCTION()
 	void ButtonPressed();
 public:
-	void SetNewSlotInfo(FInventoryStruct* ItemInfo);
+	void SetNewSlotInfo(FInventoryStruct* ItemIn, int32 ItemAmount);
 
 	void SetButtonStyle();
 

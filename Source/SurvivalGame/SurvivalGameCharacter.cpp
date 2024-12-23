@@ -352,7 +352,7 @@ void ASurvivalGameCharacter::InteractiveResource(const float HitDamage)
 
 			if (!ItemToGet.ItemName.IsEmpty())
 			{
-				InventoryComponent->AddItem(ItemToGet);
+				InventoryComponent->AddItem(&ItemToGet);
 			}
 		}
 		else

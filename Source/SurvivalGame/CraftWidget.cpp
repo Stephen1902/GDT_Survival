@@ -2,8 +2,7 @@
 
 
 #include "CraftWidget.h"
-
-#include "CraftItemSlotWidget.h"
+#include "InventoryItemSlot.h"
 #include "Components/VerticalBox.h"
 
 void UCraftWidget::ClearVerticalBox() const
@@ -11,10 +10,10 @@ void UCraftWidget::ClearVerticalBox() const
 	CraftVerticalBox->ClearChildren();
 }
 
-void UCraftWidget::AddVerticalBoxChild(UCraftItemSlotWidget* WidgetToAdd) const
+void UCraftWidget::AddVerticalBoxChild(UInventoryItemSlot* WidgetToAdd) const
 {
 	if (WidgetToAdd)
 	{
-		CraftVerticalBox->AddChildToVerticalBox(WidgetToAdd);
+		CraftVerticalBox->AddChild(WidgetToAdd);
 	}
 }

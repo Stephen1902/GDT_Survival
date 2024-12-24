@@ -1,7 +1,6 @@
 // Copyright 2024 DME Games
 
 #include "BuildingComponent.h"
-
 #include "BuildingBaseClass.h"
 #include "SurvivalGameCharacter.h"
 #include "InventoryComponent.h"
@@ -46,10 +45,17 @@ void UBuildingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 	if (bIsInBuildMode && MeshComponentToAdd)
 	{
-		FVector LineTractHit;
-		if (DoLineTrace(LineTractHit))
+		FVector LineTraceLocation;
+		FRotator LineTraceRotation = FRotator::ZeroRotator;
+		
+		if (DoLineTrace(LineTraceLocation))
 		{
-			MeshComponentToAdd->SetWorldLocationAndRotation(LineTractHit, PlayerRef->GetActorRotation());
+			MeshComponentToAdd->SetWorldLocationAndRotation(LineTraceLocation, PlayerRef->GetActorRotation());
+		}
+
+		if (DoLineTraceSocket(LineTraceLocation, LineTraceRotation))
+		{
+			MeshComponentToAdd->SetWorldLocationAndRotation(LineTraceLocation, LineTraceRotation);
 		}
 	}
 }
@@ -75,13 +81,12 @@ void UBuildingComponent::EnterBuildMode()
 
 	if (PlayerRef && BuildTable)
 	{
-		bIsInBuildMode = true;
-
-		
-		BuildPart.RowName = "Floor"; //FName(PlayerRef->GetInventoryComp()->GetCurrentEquippedItem()->ItemName);
+		BuildPart.RowName = "Wall"; //FName(PlayerRef->GetInventoryComp()->GetCurrentEquippedItem()->ItemName);
 
 		if (FBuildingStruct* Row = BuildTable->FindRow<FBuildingStruct>(BuildPart.RowName, ""))
 		{
+			bIsInBuildMode = true;
+
 			FTransform ComponentTransform;
 			MeshComponentToAdd = Cast<UStaticMeshComponent>(PlayerRef->AddComponentByClass(UStaticMeshComponent::StaticClass(), false, ComponentTransform, false));
 			MeshComponentToAdd->SetStaticMesh(Row->DisplayMesh);
@@ -91,6 +96,8 @@ void UBuildingComponent::EnterBuildMode()
 			{
 				MeshComponentToAdd->SetMaterial(0, PreviewMaterial);
 			}
+
+			TypeToTraceFor = Row->SocketTraceType;
 		}
 	}
 	else
@@ -120,7 +127,7 @@ void UBuildingComponent::PlaceItemInWorld()
 		NewSpawn->SetDisplayMesh(Row->DisplayMesh);
 	}
 	
-	EndBuildMode();
+	//EndBuildMode();
 }
 
 bool UBuildingComponent::DoLineTrace(FVector& HitLocationOut)
@@ -142,5 +149,27 @@ bool UBuildingComponent::DoLineTrace(FVector& HitLocationOut)
 
 	HitLocationOut = FVector(0.f);
 	return false;
+}
+
+bool UBuildingComponent::DoLineTraceSocket(FVector& HitLocationOUT, FRotator& HitRotationOUT)
+{
+	APlayerCameraManager* PCM = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	FVector StartLoc = PCM->GetCameraLocation();
+	FVector EndLoc = (PCM->GetActorForwardVector() * 1000.f) + StartLoc;
+
+	FHitResult HitResult;
+	TArray<AActor*> IgnoredActors;
+
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLoc, EndLoc, TypeToTraceFor, false, IgnoredActors,EDrawDebugTrace::None, HitResult, true);
+
+	if (HitResult.bBlockingHit)
+	{
+		HitResult.Component->GetSocketWorldLocationAndRotation("", HitLocationOUT, HitRotationOUT);
+		return true;
+	}
+
+	HitLocationOUT = FVector(0.f);
+	return false;
+	
 }
 

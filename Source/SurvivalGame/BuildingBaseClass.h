@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "BuildingBaseClass.generated.h"
 
+class UBoxComponent;
+
 UCLASS()
 class SURVIVALGAME_API ABuildingBaseClass : public AActor
 {
@@ -24,6 +26,30 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building Base")
 	UStaticMeshComponent* MeshToDisplay;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building Base")
+	UBoxComponent* FloorTraceSocket1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building Base")
+	UBoxComponent* FloorTraceSocket2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building Base")
+	UBoxComponent* FloorTraceSocket3;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building Base")
+	UBoxComponent* FloorTraceSocket4;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building Base")
+	UBoxComponent* WallTraceSocket1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building Base")
+	UBoxComponent* WallTraceSocket2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building Base")
+	UBoxComponent* WallTraceSocket3;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Building Base")
+	UBoxComponent* WallTraceSocket4;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

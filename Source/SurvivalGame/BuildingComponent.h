@@ -75,5 +75,7 @@ private:
 	bool bIsInBuildMode;
 
 	bool DoLineTrace(FVector& HitLocationOut);
+	bool DoLineTraceSocket(FVector& HitLocationOUT, FRotator& HitRotationOUT);
+	TEnumAsByte<ETraceTypeQuery> TypeToTraceFor;
 
 };

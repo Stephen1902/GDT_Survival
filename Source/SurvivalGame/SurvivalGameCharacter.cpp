@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "SurvivalGameCharacter.h"
+
+#include "BuildingComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -74,6 +76,7 @@ ASurvivalGameCharacter::ASurvivalGameCharacter()
 
 	StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("Stat Component"));
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory Component"));
+	BuildingComponent = CreateDefaultSubobject<UBuildingComponent>(TEXT("Building Component"));
 
 	bIsMoving = false;
 	bIsSprinting = false;
@@ -121,6 +124,10 @@ void ASurvivalGameCharacter::BeginPlay()
 		InventoryComponent->SetPlayerCharacterRef(this);
 	}
 
+	if (BuildingComponent)
+	{
+		BuildingComponent->SetPlayerCharacterRef(this);
+	}
 	if (AttackMontage)
 	{
 		GetMesh()->GetAnimInstance()->OnMontageEnded.AddDynamic(this, &ASurvivalGameCharacter::AnimMontageEnded);
@@ -311,17 +318,24 @@ void ASurvivalGameCharacter::TryToInteract(const FInputActionValue& Value)
 
 void ASurvivalGameCharacter::LeftStrike(const FInputActionValue& Value)
 {
-	if (AttackMontage)
+	if (!BuildingComponent->GetIsInBuildMode())
 	{
-		if (bCanAttack)
+		if (AttackMontage)
 		{
-			bCanAttack = false;
-			GetMesh()->GetAnimInstance()->Montage_Play(AttackMontage);
+			if (bCanAttack)
+			{
+				bCanAttack = false;
+				GetMesh()->GetAnimInstance()->Montage_Play(AttackMontage);
+			}
+		}
+		else
+		{
+			InteractiveResource(1.0f);
 		}
 	}
 	else
 	{
-		InteractiveResource(1.0f);
+		BuildingComponent->PlaceItemInWorld();
 	}
 }
 

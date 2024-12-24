@@ -80,6 +80,9 @@ class ASurvivalGameCharacter : public ACharacter, public IBFI_Interactive
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UInventoryComponent* InventoryComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UBuildingComponent* BuildingComponent;
+	/** Interaction */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Interaction, meta = (AllowPrivateAccess = "true"))
 	float InteractionDistance = 200.f;
 

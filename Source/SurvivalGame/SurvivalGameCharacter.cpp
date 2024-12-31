@@ -292,16 +292,16 @@ void ASurvivalGameCharacter::SetEquippedItemMesh(FInventoryStruct* InventoryStru
 	{
 		PlayerWidgetRef->UpdateEquippedItem(InventoryStructIn);
 	}
+	
 	// Automatically close the inventory
 	ToggleInventory(0);
+	
 }
 
 void ASurvivalGameCharacter::DealWithNewItem(const FString ItemName, UTexture2D* ItemIcon, const int32 ItemQuantity)
 {
-	UE_LOG(LogTemp, Warning, TEXT("DealWithNewItem called."));
 	if (PlayerWidgetRef)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerWidgetRef is valid."));
 		PlayerWidgetRef->SetNewItemInfo(ItemName, ItemIcon, ItemQuantity);
 		PlayerWidgetRef->PlayNewItemAnim();
 	}

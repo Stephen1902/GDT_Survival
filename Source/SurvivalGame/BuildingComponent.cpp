@@ -15,27 +15,15 @@ UBuildingComponent::UBuildingComponent()
 
 	bIsInBuildMode = false;
 	PlayerRef = nullptr;
-	BuildTable = nullptr;
 	PreviewMaterial = nullptr;
 	MeshComponentToAdd = nullptr;
 }
-
 
 // Called when the game starts
 void UBuildingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (BuildTable)
-	{
-		BuildPart.DataTable = BuildTable;
-		EnterBuildMode();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Build Table is not set in Player BuildingComponent."));
-	}
-	
 }
 
 // Called every frame
@@ -47,7 +35,7 @@ void UBuildingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	{
 		FVector LineTraceLocation;
 		FRotator LineTraceRotation = FRotator::ZeroRotator;
-		
+
 		if (DoLineTrace(LineTraceLocation))
 		{
 			MeshComponentToAdd->SetWorldLocationAndRotation(LineTraceLocation, PlayerRef->GetActorRotation());
@@ -72,24 +60,29 @@ void UBuildingComponent::SetPlayerCharacterRef(ASurvivalGameCharacter* PlayerRef
 	}
 }
 
-void UBuildingComponent::EnterBuildMode()
+void UBuildingComponent::EnterBuildMode(FInventoryStruct* ItemToBuildWith)
 {
-	if (!PlayerRef)
+	if (ItemToBuildWith)
 	{
-		PlayerRef = Cast<ASurvivalGameCharacter>(GetOwner());
-	}
-
-	if (PlayerRef && BuildTable)
-	{
-		BuildPart.RowName = "Wall"; //FName(PlayerRef->GetInventoryComp()->GetCurrentEquippedItem()->ItemName);
-
-		if (FBuildingStruct* Row = BuildTable->FindRow<FBuildingStruct>(BuildPart.RowName, ""))
+		// Check if an item isn't already trying to be built
+		if (bIsInBuildMode && ItemToBuildWith != ItemToBuild)
 		{
+			EndBuildMode();
+		}
+
+		if (!PlayerRef)
+		{
+			PlayerRef = Cast<ASurvivalGameCharacter>(GetOwner());
+		}
+	
+		if (PlayerRef)
+		{
+			ItemToBuild = ItemToBuildWith; 
 			bIsInBuildMode = true;
 
 			FTransform ComponentTransform;
 			MeshComponentToAdd = Cast<UStaticMeshComponent>(PlayerRef->AddComponentByClass(UStaticMeshComponent::StaticClass(), false, ComponentTransform, false));
-			MeshComponentToAdd->SetStaticMesh(Row->DisplayMesh);
+			MeshComponentToAdd->SetStaticMesh(ItemToBuildWith->DisplayMesh);
 			MeshComponentToAdd->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 			if (PreviewMaterial)
@@ -97,19 +90,19 @@ void UBuildingComponent::EnterBuildMode()
 				MeshComponentToAdd->SetMaterial(0, PreviewMaterial);
 			}
 
-			TypeToTraceFor = Row->SocketTraceType;
+			TypeToTraceFor = ItemToBuildWith->BuildingStruct.SocketTraceType;
 		}
-	}
-	else
-	{
-		EndBuildMode();
+		else
+		{
+			EndBuildMode();
+		}
 	}
 }
 
 void UBuildingComponent::EndBuildMode()
 {
 	bIsInBuildMode = false;
-	BuildPart.RowName = FName("");
+	ItemToBuild = nullptr;
 	if (MeshComponentToAdd)
 	{
 		MeshComponentToAdd->SetStaticMesh(nullptr);
@@ -119,15 +112,28 @@ void UBuildingComponent::EndBuildMode()
 
 void UBuildingComponent::PlaceItemInWorld()
 {
-	if (FBuildingStruct* Row = BuildTable->FindRow<FBuildingStruct>(BuildPart.RowName, ""))
+	if (ItemToBuild)
 	{
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		ABuildingBaseClass* NewSpawn = GetWorld()->SpawnActor<ABuildingBaseClass>(Row->ClassToSpawn, MeshComponentToAdd->GetComponentTransform(), SpawnParameters);
-		NewSpawn->SetDisplayMesh(Row->DisplayMesh);
+		ABuildingBaseClass* NewSpawn = GetWorld()->SpawnActor<ABuildingBaseClass>(ItemToBuild->BuildingStruct.ClassToSpawn, MeshComponentToAdd->GetComponentTransform(), SpawnParameters);
+		NewSpawn->SetDisplayMesh(ItemToBuild->DisplayMesh);
+
+		if (PlayerRef)
+		{
+			// Remove an item from the inventory
+			PlayerRef->GetInventoryComp()->RemoveItem(ItemToBuild->ItemName, 1);
+			// Check if the player has more of these items in the inventory, to allow for multiple placing
+			if (!PlayerRef->GetInventoryComp()->CheckItemExists(ItemToBuild))
+			{
+				EndBuildMode();
+			}
+		}
 	}
-	
-	//EndBuildMode();
+	else
+	{
+		EndBuildMode();	
+	}
 }
 
 bool UBuildingComponent::DoLineTrace(FVector& HitLocationOut)
@@ -139,14 +145,14 @@ bool UBuildingComponent::DoLineTrace(FVector& HitLocationOut)
 	FHitResult HitResult;
 	TArray<AActor*> IgnoredActors;
 
-	UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLoc, EndLoc, TraceTypeQuery1, false, IgnoredActors,EDrawDebugTrace::None, HitResult, true);
-
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLoc, EndLoc, TraceTypeQuery1, false, IgnoredActors, EDrawDebugTrace::None, HitResult, true);
+	
 	if (HitResult.bBlockingHit)
 	{
 		HitLocationOut = HitResult.Location;
 		return true;
 	}
-
+	GEngine->AddOnScreenDebugMessage(0, 0.f, FColor::Red, TEXT("No Valid Hit Location"));
 	HitLocationOut = FVector(0.f);
 	return false;
 }
@@ -159,7 +165,7 @@ bool UBuildingComponent::DoLineTraceSocket(FVector& HitLocationOUT, FRotator& Hi
 
 	FHitResult HitResult;
 	TArray<AActor*> IgnoredActors;
-
+	
 	UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLoc, EndLoc, TypeToTraceFor, false, IgnoredActors,EDrawDebugTrace::None, HitResult, true);
 
 	if (HitResult.bBlockingHit)

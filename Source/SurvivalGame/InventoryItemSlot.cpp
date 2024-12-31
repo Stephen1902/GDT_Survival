@@ -1,6 +1,9 @@
 // Copyright 2024 DME Games
 
 #include "InventoryItemSlot.h"
+
+#include "BuildingComponent.h"
+#include "InventoryComponent.h"
 #include "SurvivalGameCharacter.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
@@ -44,10 +47,18 @@ void UInventoryItemSlot::ButtonPressed()
 	{
 		if (ASurvivalGameCharacter* PlayerChar = Cast<ASurvivalGameCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)))
 		{
-			PlayerChar->SetEquippedItemMesh(ItemToUse);
-		}
+			if (ItemToUse->bCanBePlaced)
+			{
+				PlayerChar->GetBuildingComp()->EnterBuildMode(ItemToUse);
+				PlayerChar->GetInventoryComp()->DealWithInventoryButtonPress(Cast<APlayerController>(PlayerChar->GetController()));
+			}
+			else
+			{
+				PlayerChar->SetEquippedItemMesh(ItemToUse);
+			}
 
-		SetButtonStyle();
+			SetButtonStyle();
+		}
 	}
 }
 

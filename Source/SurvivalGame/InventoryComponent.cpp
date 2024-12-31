@@ -2,6 +2,8 @@
 
 
 #include "InventoryComponent.h"
+
+#include "BuildingComponent.h"
 #include "InventoryWidget.h"
 #include "SurvivalGameCharacter.h"
 
@@ -40,7 +42,6 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UInventoryComponent::AddItem(FInventoryStruct* ItemToAdd)
 {
-	
 	bool bMatchFound = false;
 
 	for (auto& InventoryLine : InventoryInfo)
@@ -108,6 +109,22 @@ bool UInventoryComponent::RemoveItem(FString ItemToRemove, int32 AmountToRemove)
 	return bItemRemoved;
 }
 
+bool UInventoryComponent::CheckItemExists(const FInventoryStruct* ItemToCheck)
+{
+	if (ItemToCheck)
+	{
+		for (int32 i = 0; i < InventoryInfo.Num(); ++i)
+		{
+			if (ItemToCheck->ItemName == InventoryInfo[i].ItemName)
+			{
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
 void UInventoryComponent::DealWithInventoryButtonPress(APlayerController* PlayerControllerIn)
 {
 	if (InventoryWidget && PlayerControllerIn)
@@ -137,6 +154,11 @@ void UInventoryComponent::DealWithInventoryButtonPress(APlayerController* Player
 void UInventoryComponent::SetEquippedItem(FInventoryStruct* SlotItem)
 {
 	CurrentEquippedItem = SlotItem;
+
+	if (PlayerCharacterRef && CurrentEquippedItem->bCanBePlaced)
+	{
+		PlayerCharacterRef->GetBuildingComp()->EnterBuildMode(CurrentEquippedItem);
+	}
 }
 
 void UInventoryComponent::SetPlayerCharacterRef(ASurvivalGameCharacter* ReferenceIn)
@@ -214,7 +236,7 @@ void UInventoryComponent::TempAddItems()
 	{
 		FInventoryStruct NewStruct;
 		NewStruct.ItemName = NewRow->ItemName;
-		NewStruct.Amount = NewRow->Amount;
+		NewStruct.Amount = 16;
 		NewStruct.DisplayMesh = NewRow->DisplayMesh;
 		NewStruct.Icon = NewRow->Icon;
 		NewStruct.bCanCraft = NewRow->bCanCraft;

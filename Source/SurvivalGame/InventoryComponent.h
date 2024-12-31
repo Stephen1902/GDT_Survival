@@ -37,6 +37,7 @@ public:
 
 	void AddItem(FInventoryStruct* ItemToAdd);
 	bool RemoveItem(FString ItemToRemove, int32 AmountToRemove);
+	bool CheckItemExists(const FInventoryStruct* ItemToCheck);
 
 	void DealWithInventoryButtonPress(APlayerController* PlayerControllerIn);
 	void SetEquippedItem(FInventoryStruct* SlotItem);

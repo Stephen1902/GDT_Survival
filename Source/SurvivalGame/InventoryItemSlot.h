@@ -43,6 +43,7 @@ private:
 
 	UFUNCTION()
 	void ButtonPressed();
+
 public:
 	void SetNewSlotInfo(FInventoryStruct* ItemIn, int32 ItemAmount);
 

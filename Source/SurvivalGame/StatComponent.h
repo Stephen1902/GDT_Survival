@@ -68,6 +68,8 @@ public:
 	void UpdateStatBar(float StatValue, float MaxValue, UProgressBar* WidgetToUpdate);
 
 	void SetPlayerWidgetRef(class UPlayerWidget* ReferenceIn);
+
+	void CauseDamage(float DamageAmount);
 private:
 	float Health;
 	float Hunger;
@@ -75,8 +77,7 @@ private:
 	float Stamina;
 	bool bIsHealing;
 	bool bIsRegainingStamina;
-
-	void CauseDamage(float DamageAmount);
+	
 	void Heal();
 	void AdjustStamina();
 	void FoodDrain();

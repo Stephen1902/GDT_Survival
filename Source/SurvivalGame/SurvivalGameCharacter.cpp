@@ -142,6 +142,8 @@ void ASurvivalGameCharacter::BeginPlay()
 
 	// Make sure that only the character is rendered, not the background as well
 	SceneCaptureComp->ShowOnlyActorComponents(this, true);
+
+	OnTakeAnyDamage.AddDynamic(this, &ASurvivalGameCharacter::OnDamageReceived);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -398,6 +400,15 @@ void ASurvivalGameCharacter::OnAnimNotify(FName NotifyName, const FBranchingPoin
 
 	if (InteractHitNiagara)
 	{
-		UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), InteractHitNiagara,  HitLocation, FRotator(180.f, 0.f, 0.f));
+		/*UNiagaraComponent* NiagaraComp = */UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), InteractHitNiagara,  HitLocation, FRotator(180.f, 0.f, 0.f));
+	}
+}
+
+void ASurvivalGameCharacter::OnDamageReceived(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%f damaged received"), Damage);
+	if (StatComponent)
+	{
+		StatComponent->CauseDamage(Damage);
 	}
 }

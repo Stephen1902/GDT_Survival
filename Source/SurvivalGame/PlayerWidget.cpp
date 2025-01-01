@@ -22,15 +22,12 @@ void UPlayerWidget::PlayDamageAnim()
 
 void UPlayerWidget::PlayNewItemAnim()
 {
-	UE_LOG(LogTemp, Warning, TEXT("PlayNewItemAnim called."));
 	if (!IsAnimationPlaying(NewItemAnimation))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Animation not playing."));
 		PlayAnimation(NewItemAnimation);
 
 		if (NewItemSound)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Playing sound."));
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PlayerDamageSound, GetOwningPlayer()->GetPawn()->GetActorLocation());
 		}
 	}

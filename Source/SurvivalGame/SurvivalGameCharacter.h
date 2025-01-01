@@ -157,6 +157,9 @@ private:
 	UFUNCTION()
 	void OnAnimNotify(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
 
+	UFUNCTION()
+	void OnDamageReceived(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
 	FVector HitLocation;
 };
 

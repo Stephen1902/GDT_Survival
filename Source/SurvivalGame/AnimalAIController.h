@@ -36,9 +36,7 @@ private:
 	UPROPERTY()
 	AActor* ActorToChase;
 	bool bIsChasing;
-
-	bool bIsDead;
-
+	
 	UFUNCTION()
 	void OnPawnSeen(APawn* SeenPawn);
 };

@@ -18,7 +18,6 @@ AAnimalAIController::AAnimalAIController()
 	
 	ControlledChar = nullptr;
 	bIsChasing = false;
-	bIsDead = false;
 	ActorToChase = nullptr;
 }
 
@@ -43,10 +42,7 @@ void AAnimalAIController::OnMoveCompleted(FAIRequestID RequestID, EPathFollowing
 	}
 	else
 	{
-		if (!bIsDead)
-		{
-			ControlledChar->CheckCanAttack();
-		}
+		ControlledChar->CheckCanAttack();
 		//Chase(ActorToChase);
 	}
 }

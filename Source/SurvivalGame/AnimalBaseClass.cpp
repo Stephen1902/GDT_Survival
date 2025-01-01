@@ -4,6 +4,7 @@
 #include "AnimalBaseClass.h"
 
 #include "AnimalAIController.h"
+#include "ItemBaseActor.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -26,6 +27,10 @@ AAnimalBaseClass::AAnimalBaseClass()
 
 	WanderWalkSpeed = 350.f;
 	ChaseWalkSpeed = 500.f;
+	bIsDead = false;
+	Health = 50.f;
+	MinMeatToGive = 1;
+	MaxMeatToGive = 5;
 }
 
 // Called when the game starts or when spawned
@@ -34,6 +39,8 @@ void AAnimalBaseClass::BeginPlay()
 	Super::BeginPlay();
 
 	GetCharacterMovement()->MaxWalkSpeed = WanderWalkSpeed;
+
+	OnTakeAnyDamage.AddDynamic(this, &AAnimalBaseClass::OnDamageReceived);
 }
 
 // Called every frame
@@ -58,27 +65,30 @@ void AAnimalBaseClass::SetWalkSpeed(bool IsChasing)
 
 void AAnimalBaseClass::CheckCanAttack()
 {
-	AActor* HitActor = DoLineTrace();
-	if (HitActor != nullptr)
+	if (!bIsDead)
 	{
-		const FDamageEvent DamageEvent;
-		HitActor->TakeDamage(DamageCaused, DamageEvent, GetController(), this);
-		if (ACharacter* Character = Cast<ACharacter>(HitActor))
+		AActor* HitActor = DoLineTrace();
+		if (HitActor != nullptr)
 		{
-			FVector AmountToLaunch = GetActorForwardVector() * 500.f;
-			AmountToLaunch.Z += 50.f;
-			Character->LaunchCharacter(AmountToLaunch, false, false);
+			const FDamageEvent DamageEvent;
+			HitActor->TakeDamage(DamageCaused, DamageEvent, GetController(), this);
+			if (ACharacter* Character = Cast<ACharacter>(HitActor))
+			{
+				FVector AmountToLaunch = GetActorForwardVector() * 500.f;
+				AmountToLaunch.Z += 50.f;
+				Character->LaunchCharacter(AmountToLaunch, false, false);
+			}
 		}
-	}
 
-	if (AttackMontageToPlay)
-	{
-		PlayAnimMontage(AttackMontageToPlay);
-	}
+		if (AttackMontageToPlay)
+		{
+			PlayAnimMontage(AttackMontageToPlay);
+		}
 
-	if (AttackSoundToPlay)
-	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSoundToPlay, GetActorLocation());
+		if (AttackSoundToPlay)
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSoundToPlay, GetActorLocation());
+		}
 	}
 }
 
@@ -101,4 +111,25 @@ AActor* AAnimalBaseClass::DoLineTrace()
 	}
 	
 	return nullptr;
+}
+
+void AAnimalBaseClass::IsDead()
+{
+	bIsDead = true;
+	GetCharacterMovement()->DisableMovement();
+	GetMesh()->SetSimulatePhysics(true);
+
+	if (MeatBPToSpawn)
+	{
+		
+	}
+}
+
+void AAnimalBaseClass::OnDamageReceived(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	Health -= Damage;
+	if (Health <= 0.f)
+	{
+		IsDead();
+	}
 }

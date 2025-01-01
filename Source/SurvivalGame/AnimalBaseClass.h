@@ -38,7 +38,19 @@ protected:
 	// The sound that is played when this animal attacks
 	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
 	USoundBase* AttackSoundToPlay;
-	
+
+	// Health this animal spawns with
+	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
+	float Health;
+
+	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
+	int32 MinMeatToGive;
+
+	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
+	int32 MaxMeatToGive;
+
+	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
+	TSubclassOf<class AItemBaseActor> MeatBPToSpawn;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -47,4 +59,11 @@ public:
 
 	void CheckCanAttack();
 	AActor* DoLineTrace();
+
+private:
+	bool bIsDead;
+	void IsDead();
+	
+	UFUNCTION()
+	void OnDamageReceived(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 };

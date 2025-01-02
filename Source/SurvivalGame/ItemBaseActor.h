@@ -50,12 +50,17 @@ public:
 
 	virtual void OnInteract_Implementation(float Damage, FInventoryStruct& ItemToInteractWith, APlayerController* Controller, AActor* DamageCauser) override;
 
+	void SetItemSpawnedBoolean(bool ItemSpawnedIn);
 private:
 	float CurrentHealth;
 
 	//UFUNCTION()
 	void OnDamageTaken(AActor* DamagedActor, float DamageAmount, const UDamageType* DamageType, AController* DamageInstigator, AActor* DamageCauser);
 
+	bool bItemSpawnedAtRuntime = false;
+	FTimerHandle RemovePhysicsHandle;
+	void RemovePhysics();
+	
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif

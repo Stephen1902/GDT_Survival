@@ -41,6 +41,9 @@ void AAnimalBaseClass::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeed = WanderWalkSpeed;
 
 	OnTakeAnyDamage.AddDynamic(this, &AAnimalBaseClass::OnDamageReceived);
+
+	FTimerHandle TempTimer;
+	GetWorld()->GetTimerManager().SetTimer(TempTimer, this, &AAnimalBaseClass::IsDead, 3.0f);
 }
 
 // Called every frame
@@ -121,8 +124,27 @@ void AAnimalBaseClass::IsDead()
 
 	if (MeatBPToSpawn)
 	{
-		
+		int32 RandomAmountToGive = FMath::RandRange(MinMeatToGive, MaxMeatToGive);
+		for (int32 i = 0; i < RandomAmountToGive; ++i)
+		{
+			FActorSpawnParameters SpawnParameters;
+			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			FVector SpawnLocation = GetActorLocation();
+			SpawnLocation.X += FMath::RandRange(-250.f, 250.f);
+			SpawnLocation.Y += FMath::RandRange(-250.f, 250.f);
+			SpawnLocation.Z += 50.f;
+			FRotator SpawnRotator = FRotator::ZeroRotator;
+			SpawnRotator.Pitch = FMath::RandRange(-90.f, 90.f);
+			SpawnRotator.Roll = FMath::RandRange(-90.f, 90.f);
+			AItemBaseActor* NewItem = GetWorld()->SpawnActor<AItemBaseActor>(MeatBPToSpawn, SpawnLocation, SpawnRotator, SpawnParameters);
+			
+			NewItem->SetItemSpawnedBoolean(true);
+
+			
+			
+		}
 	}
+	Destroy();
 }
 
 void AAnimalBaseClass::OnDamageReceived(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)

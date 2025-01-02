@@ -34,6 +34,8 @@ void AItemBaseActor::BeginPlay()
 	Super::BeginPlay();
 
 	/*OnTakeAnyDamage.AddDynamic(this, &AItemBaseActor::OnDamageTaken);*/
+	
+	
 }
 
 // Called every frame
@@ -41,6 +43,12 @@ void AItemBaseActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bItemSpawnedAtRuntime)
+	{
+		bItemSpawnedAtRuntime = false;
+		MeshComponent->SetSimulatePhysics(true);
+		GetWorld()->GetTimerManager().SetTimer(RemovePhysicsHandle, this, &AItemBaseActor::RemovePhysics, 2.0f);
+	}
 }
 
 void AItemBaseActor::OnInteract_Implementation(float Damage, FInventoryStruct& ItemToInteractWith, APlayerController* Controller, AActor* DamageCauser)
@@ -92,6 +100,11 @@ void AItemBaseActor::OnInteract_Implementation(float Damage, FInventoryStruct& I
 	}
 }
 
+void AItemBaseActor::SetItemSpawnedBoolean(bool ItemSpawnedIn)
+{
+	bItemSpawnedAtRuntime = ItemSpawnedIn;
+}
+
 void AItemBaseActor::OnDamageTaken(AActor* DamagedActor, float DamageAmount, const UDamageType* DamageType,	AController* DamageInstigator, AActor* DamageCauser)
 {
 	if (DamageAmount > 0.f)
@@ -100,11 +113,17 @@ void AItemBaseActor::OnDamageTaken(AActor* DamagedActor, float DamageAmount, con
 	}
 }
 
+void AItemBaseActor::RemovePhysics()
+{
+	GetWorld()->GetTimerManager().ClearTimer(RemovePhysicsHandle);
+	MeshComponent->SetSimulatePhysics(false);
+}
+
 #if WITH_EDITOR
 void AItemBaseActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-
+	
 	if (bItemIsPickedUp)
 	{
 		StartingHealth = 0.f;
@@ -112,9 +131,12 @@ void AItemBaseActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChang
 	
 	if (InventoryItem.Num() > 0)
 	{
-		if (FInventoryStruct* Row = InventoryItem[0].DataTable->FindRow<FInventoryStruct>(InventoryItem[0].RowName, ""))
+		if (InventoryItem[0].DataTable)
 		{
-			MeshComponent->SetStaticMesh(Row->DisplayMesh);
+			if (FInventoryStruct* Row = InventoryItem[0].DataTable->FindRow<FInventoryStruct>(InventoryItem[0].RowName, ""))
+			{
+				MeshComponent->SetStaticMesh(Row->DisplayMesh);
+			}
 		}
 	}
 }

@@ -13,6 +13,7 @@ Content/__ExternalObjects__/
 Content/MSPresets/
 Content/Megascans/
 Content/Metahumans/
+Content/Animals/Tiger/
 
 
 # Visual Studio 2015 user specific files
@@ -109,3 +110,4 @@ Content/Food_Pack_01/*
 Content/ThirdPerson/Maps/_GENERATED/nicho/
 Content/Openable_Scifi_containers/
 Content/MedievalDungeon/
+Content/Animals/*

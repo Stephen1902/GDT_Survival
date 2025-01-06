@@ -165,10 +165,20 @@ void AAnimalBaseClass::ResetCanAttack()
 
 void AAnimalBaseClass::OnDamageReceived(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s has been hit with %f damage."), *GetName(), Damage);
+	UE_LOG(LogTemp, Warning, TEXT("Animal Damage Received."));
 	Health -= Damage;
 	if (Health <= 0.f)
 	{
 		IsDead();
+	}
+	else
+	{
+		if (HitSoundToPlay)
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSoundToPlay, GetActorLocation());
+		}
+
+		// After a small delay, animal can attack again
+		GetWorld()->GetTimerManager().SetTimer(CanAttackTimerHandle, this, &AAnimalBaseClass::ResetCanAttack, 0.1f);
 	}
 }

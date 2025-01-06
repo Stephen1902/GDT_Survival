@@ -43,6 +43,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
 	USoundBase* AttackSoundToPlay;
 
+	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
+	USoundBase* HitSoundToPlay;
+	
 	// Health this animal spawns with
 	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
 	float Health;

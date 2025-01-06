@@ -31,6 +31,8 @@ AAnimalBaseClass::AAnimalBaseClass()
 	Health = 50.f;
 	MinMeatToGive = 1;
 	MaxMeatToGive = 5;
+	bCanAttack = true;
+	TimeBetweenAttacks = 1.0f;
 }
 
 // Called when the game starts or when spawned
@@ -41,9 +43,10 @@ void AAnimalBaseClass::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeed = WanderWalkSpeed;
 
 	OnTakeAnyDamage.AddDynamic(this, &AAnimalBaseClass::OnDamageReceived);
-
+/*
 	FTimerHandle TempTimer;
 	GetWorld()->GetTimerManager().SetTimer(TempTimer, this, &AAnimalBaseClass::IsDead, 3.0f);
+	*/
 }
 
 // Called every frame
@@ -68,7 +71,7 @@ void AAnimalBaseClass::SetWalkSpeed(bool IsChasing)
 
 void AAnimalBaseClass::CheckCanAttack()
 {
-	if (!bIsDead)
+	if (!bIsDead && bCanAttack)
 	{
 		AActor* HitActor = DoLineTrace();
 		if (HitActor != nullptr)
@@ -91,6 +94,12 @@ void AAnimalBaseClass::CheckCanAttack()
 		if (AttackSoundToPlay)
 		{
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSoundToPlay, GetActorLocation());
+		}
+
+		if (TimeBetweenAttacks > 0.f)
+		{
+			bCanAttack = false;
+			GetWorld()->GetTimerManager().SetTimer(CanAttackTimerHandle, this, &AAnimalBaseClass::ResetCanAttack, TimeBetweenAttacks);
 		}
 	}
 }
@@ -120,7 +129,7 @@ void AAnimalBaseClass::IsDead()
 {
 	bIsDead = true;
 	GetCharacterMovement()->DisableMovement();
-	GetMesh()->SetSimulatePhysics(true);
+	//GetMesh()->SetSimulatePhysics(true);
 
 	if (MeatBPToSpawn)
 	{
@@ -129,26 +138,34 @@ void AAnimalBaseClass::IsDead()
 		{
 			FActorSpawnParameters SpawnParameters;
 			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			// Create a random location around the dead animal to spawn the meat
 			FVector SpawnLocation = GetActorLocation();
 			SpawnLocation.X += FMath::RandRange(-250.f, 250.f);
 			SpawnLocation.Y += FMath::RandRange(-250.f, 250.f);
 			SpawnLocation.Z += 50.f;
+
+			// Create a random rotation
 			FRotator SpawnRotator = FRotator::ZeroRotator;
 			SpawnRotator.Pitch = FMath::RandRange(-90.f, 90.f);
 			SpawnRotator.Roll = FMath::RandRange(-90.f, 90.f);
-			AItemBaseActor* NewItem = GetWorld()->SpawnActor<AItemBaseActor>(MeatBPToSpawn, SpawnLocation, SpawnRotator, SpawnParameters);
-			
-			NewItem->SetItemSpawnedBoolean(true);
 
-			
-			
+			// Spawn the item and tell it that it was spawned (not placed) in the world to simulate physics while new
+			AItemBaseActor* NewItem = GetWorld()->SpawnActor<AItemBaseActor>(MeatBPToSpawn, SpawnLocation, SpawnRotator, SpawnParameters);
+			NewItem->SetItemSpawnedBoolean(true);
 		}
 	}
 	Destroy();
 }
 
+void AAnimalBaseClass::ResetCanAttack()
+{
+	bCanAttack = true;
+}
+
 void AAnimalBaseClass::OnDamageReceived(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s has been hit with %f damage."), *GetName(), Damage);
 	Health -= Damage;
 	if (Health <= 0.f)
 	{

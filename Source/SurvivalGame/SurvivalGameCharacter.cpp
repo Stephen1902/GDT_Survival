@@ -19,6 +19,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Engine/DamageEvents.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -101,7 +102,7 @@ void ASurvivalGameCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
-
+	
 	if (WidgetToDisplay)
 	{
 		PlayerController = Cast<APlayerController>(GetController());
@@ -375,6 +376,18 @@ void ASurvivalGameCharacter::InteractiveResource(const float HitDamage)
 				// Set the hit location of the HitResult to use on the animation
 				HitLocation = HitResult.Location;
 				HitLocation.Z += 50.f;
+			}
+			else
+			{
+				// Assume it is an animal of some sort that can be damaged
+				const FDamageEvent DamageEvent;
+				HitResult.GetActor()->TakeDamage(10.f, DamageEvent, GetController(), this);
+				if (ACharacter* Character = Cast<ACharacter>(HitResult.GetActor()))
+				{
+					FVector AmountToLaunch = GetActorForwardVector() * 500.f;
+					AmountToLaunch.Z += 50.f;
+					Character->LaunchCharacter(AmountToLaunch, false, false);
+				}
 			}
 
 			if (!ItemToGet.ItemName.IsEmpty())

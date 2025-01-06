@@ -4,6 +4,7 @@
 #include "AnimalBaseClass.h"
 #include "NavigationSystem.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Navigation/PathFollowingComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
 AAnimalAIController::AAnimalAIController()
@@ -31,7 +32,7 @@ void AAnimalAIController::BeginPlay()
 	PawnSensingComponent->OnSeePawn.AddDynamic(this, &AAnimalAIController::OnPawnSeen);
 }
 
-void AAnimalAIController::OnMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
+void AAnimalAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
 	Super::OnMoveCompleted(RequestID, Result);
 
@@ -42,9 +43,12 @@ void AAnimalAIController::OnMoveCompleted(FAIRequestID RequestID, EPathFollowing
 	}
 	else
 	{
-		ControlledChar->CheckCanAttack();
+		if (Result.IsSuccess())
+		{
+			ControlledChar->CheckCanAttack();
+		}
 		//Chase(ActorToChase);
-	}
+	}	
 }
 
 void AAnimalAIController::Wander()
@@ -78,13 +82,13 @@ void AAnimalAIController::Chase(AActor* TargetActor)
 		if (ActorToChase == nullptr)
 		{
 			ActorToChase = TargetActor;
-			ControlledChar->SetWalkSpeed(true);
+			//ControlledChar->SetWalkSpeed(true);
 			bIsChasing = true;
 		}
 				
 		const auto NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
-		FNavLocation RandomMoveToLoc;
-		if (NavSystem->GetRandomPointInNavigableRadius(ControlledChar->GetActorLocation(), 3500.f, RandomMoveToLoc))
+		//FNavLocation RandomMoveToLoc;
+		//if (NavSystem->GetRandomPointInNavigableRadius(ControlledChar->GetActorLocation(), 3500.f, RandomMoveToLoc))
 		{
 			MoveToLocation(ActorToChase->GetActorLocation(), 150.f);			
 		}		

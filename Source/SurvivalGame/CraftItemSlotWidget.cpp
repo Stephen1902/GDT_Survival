@@ -1,6 +1,5 @@
 // Copyright 2024 DME Games
 
-
 #include "CraftItemSlotWidget.h"
 #include "InventoryComponent.h"
 #include "InventoryWidget.h"
@@ -12,12 +11,12 @@
 void UCraftItemSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-
+/*
 	if (!GetWorld()->GetTimerManager().IsTimerActive(UpdateDelayHandle))
 	{
 		GetWorld()->GetTimerManager().SetTimer(UpdateDelayHandle, this, &UCraftItemSlotWidget::UpdateSlot, GetWorld()->GetDeltaSeconds(), false, GetWorld()->GetDeltaSeconds());
 	}
-
+*/
 	CraftButton->OnClicked.AddDynamic(this, &UCraftItemSlotWidget::ButtonPressed);
 }
 

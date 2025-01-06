@@ -200,9 +200,10 @@ bool UInventoryComponent::CanCraft(FInventoryStruct* InventoryStructIn)
 			{
 				// Check if there is an item matched on the name
 				bool bMatchedItem = false;
-
+				
 				for (int32 j = 0; j < InventoryInfo.Num(); ++j)
 				{
+					UE_LOG(LogTemp, Warning, TEXT("Crafting Item is %s, Inventory Item is %s"), *InventoryStructIn->CraftingItems[i].InventoryItem.RowName.ToString(), *InventoryInfo[j].ItemName);
 					// Check if the item in the inventory matches the items in the crafting requirements
 					if (InventoryStructIn->CraftingItems[i].InventoryItem.RowName.ToString() == InventoryInfo[j].ItemName)
 					{

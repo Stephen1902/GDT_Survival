@@ -49,6 +49,8 @@ void UStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Health = StartingHealth;
+	
 	PlayerCharacter = Cast<ASurvivalGameCharacter>(GetOwner());
 
 	GetWorld()->GetTimerManager().SetTimer(HealTimerHandle, this, &UStatComponent::Heal, HealTimerFrequency, true, HealTimerFrequency);

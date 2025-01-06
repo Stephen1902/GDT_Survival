@@ -47,6 +47,7 @@ void AItemBaseActor::Tick(float DeltaTime)
 	{
 		bItemSpawnedAtRuntime = false;
 		MeshComponent->SetSimulatePhysics(true);
+		// Spawned items with physics enabled sometimes disappear through the scenery when the player touches them.  Turn off the physics to stop this from happening. 
 		GetWorld()->GetTimerManager().SetTimer(RemovePhysicsHandle, this, &AItemBaseActor::RemovePhysics, 2.0f);
 	}
 }

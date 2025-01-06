@@ -27,6 +27,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
 	float ChaseWalkSpeed;
 
+	// Time in seconds before this animal can attack again
+	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
+	float TimeBetweenAttacks;
+	
 	// The amount of damage this animal causes when it attacks
 	UPROPERTY(EditAnywhere, Category = "Animal Base Class")
 	float DamageCaused;
@@ -63,6 +67,10 @@ public:
 private:
 	bool bIsDead;
 	void IsDead();
+
+	bool bCanAttack;
+	FTimerHandle CanAttackTimerHandle;
+	void ResetCanAttack();
 	
 	UFUNCTION()
 	void OnDamageReceived(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);

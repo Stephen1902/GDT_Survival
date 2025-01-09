@@ -6,7 +6,6 @@
 #include "Components/SphereComponent.h"
 
 // Sets default values
-#if WITH_EDITOR
 AItemBaseActor::AItemBaseActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -15,7 +14,7 @@ AItemBaseActor::AItemBaseActor()
 	RootComp = CreateDefaultSubobject<USceneComponent>("Root Comp");
 	SetRootComponent(RootComp);
 
-	OverlapComp = CreateDefaultSubobject<USphereComponent>("Collsion Comp");
+	OverlapComp = CreateDefaultSubobject<USphereComponent>("Collision Comp");
 	OverlapComp->SetupAttachment(RootComp);
 	OverlapComp->SetCollisionProfileName(FName("OverlapAllDynamic"), true);
 	OverlapComp->SetCollisionResponseToAllChannels(ECR_Overlap);
@@ -26,8 +25,14 @@ AItemBaseActor::AItemBaseActor()
 	bItemIsPickedUp = false;
 	StartingHealth = 5.0f;
 	CurrentHealth = StartingHealth;
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> FoundTable(TEXT("'/Game/Inventory/DT_Inventory.DT_Inventory'"));
+	if (FoundTable.Succeeded())
+	{
+		InventoryDataTable = FoundTable.Object;
+	}
 }
-#endif
+
 // Called when the game starts or when spawned
 void AItemBaseActor::BeginPlay()
 {
@@ -35,7 +40,47 @@ void AItemBaseActor::BeginPlay()
 
 	/*OnTakeAnyDamage.AddDynamic(this, &AItemBaseActor::OnDamageTaken);*/
 	
-	
+
+		if (bIsRandom && RandomItems.Num() > 0)
+		{
+			// Check the total value of the random item spawn chance in the TMap
+			float TotalSpawnChance = 0.f;
+			for (const TPair<FName, float>& Pair : RandomItems)
+			{
+				TotalSpawnChance += Pair.Value;
+			}
+
+			float RandomSpawn = FMath::FRandRange(0.f, TotalSpawnChance);
+			
+			bool bMatchMade = false;
+			
+			for (const TPair<FName, float>& Pair : RandomItems)
+			{
+				if (!bMatchMade)
+				{
+					if (Pair.Value > RandomSpawn)
+					{
+						bMatchMade = true;		
+						if (FInventoryStruct* Row = InventoryDataTable->FindRow<FInventoryStruct>(Pair.Key, ""))
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Row Found, Key is %s"), *Pair.Key.ToString());
+							FDataTableRowHandle DataTableRowHandle;
+							DataTableRowHandle.DataTable = InventoryDataTable;
+							DataTableRowHandle.RowName = Pair.Key;
+							InventoryItem.Add(DataTableRowHandle);
+							OverlapComp->SetSphereRadius(48.f);
+							OverlapComp->SetHiddenInGame(false);
+							MeshComponent->SetStaticMesh(Row->DisplayMesh);
+						}
+					}
+					else
+					{
+						RandomSpawn -= Pair.Value;
+					}
+				}
+			}
+		}
+
 }
 
 // Called every frame
@@ -71,6 +116,7 @@ void AItemBaseActor::OnInteract_Implementation(float Damage, FInventoryStruct& I
 
 			if (FInventoryStruct* Row = InventoryItem[RandomPickup].DataTable->FindRow<FInventoryStruct>(InventoryItem[RandomPickup].RowName, ""))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Row Found"));
 				ItemToInteractWith.ItemName = Row->ItemName;
 				ItemToInteractWith.Amount = 1;
 				ItemToInteractWith.DisplayMesh = Row->DisplayMesh;

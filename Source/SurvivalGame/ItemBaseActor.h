@@ -33,7 +33,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Base Actor")
 	TObjectPtr<UStaticMeshComponent> MeshComponent;
+	
+	// Whether item is spawned randomly by the PCG
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Base Actor")
+	bool bIsRandom;
 
+	// If random, which item(s) can be spawned
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Base Actor", meta=(EditCondition="bIsRandom"))
+	TMap<FName, float> RandomItems;	
+	
 	// Item(s) that this actor returns
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item Base Actor")
 	TArray<FDataTableRowHandle> InventoryItem;
@@ -60,6 +68,11 @@ private:
 	bool bItemSpawnedAtRuntime = false;
 	FTimerHandle RemovePhysicsHandle;
 	void RemovePhysics();
+
+	// Data Table used by this item
+	UPROPERTY()
+	UDataTable* InventoryDataTable;
+	
 	
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;

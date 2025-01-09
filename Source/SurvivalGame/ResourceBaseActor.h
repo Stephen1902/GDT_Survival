@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "BFI_Interactive.h"
 #include "ResourceBaseActor.generated.h"
 
 UCLASS()
-class SURVIVALGAME_API AResourceBaseActor : public AActor
+class SURVIVALGAME_API AResourceBaseActor : public AActor, public IBFI_Interactive
 {
 	GENERATED_BODY()
 	
@@ -36,4 +37,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+private:
+	virtual void OnInteract_Implementation(float Damage, FInventoryStruct& ItemToInteractWith, APlayerController* Controller, AActor* DamageCauser) override;
 };

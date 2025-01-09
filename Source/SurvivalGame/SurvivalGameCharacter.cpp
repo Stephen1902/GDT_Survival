@@ -349,7 +349,7 @@ void ASurvivalGameCharacter::InteractiveResource(const float HitDamage)
 		FHitResult HitResult;
 		TArray<TEnumAsByte<EObjectTypeQuery>> ObjectsToTrace;
 		ObjectsToTrace.Add(UEngineTypes::ConvertToObjectType(ECC_WorldDynamic));
-		ObjectsToTrace.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
+		//ObjectsToTrace.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
 		TArray<AActor*> IgnoredActors;
 
 		FRotator ActorRot = GetActorRotation();
